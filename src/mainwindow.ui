@@ -27,7 +27,7 @@
       <item>
        <widget class="QLineEdit" name="lineEditUser">
         <property name="text">
-         <string>p166</string>
+         <string/>
         </property>
        </widget>
       </item>
@@ -41,7 +41,10 @@
       <item>
        <widget class="QLineEdit" name="lineEditPassword">
         <property name="text">
-         <string>142596</string>
+         <string/>
+        </property>
+        <property name="echoMode">
+         <enum>QLineEdit::PasswordEchoOnEdit</enum>
         </property>
        </widget>
       </item>
