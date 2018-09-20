@@ -44,7 +44,9 @@ bool MainWindow::parseReceipt(QByteArray jsonText)
                     QJsonValue vitems = receipt.value("items");
                     if (vitems.isArray()){
                         QJsonArray items = vitems.toArray();
-                        m_Items.clear();
+                        if (!m_ScanDialog.isAppendToTable()) {
+                            m_Items.clear();
+                        }
                         for (int i =0; i<items.count(); ++i){
                             QJsonValue value = items.at(i);
                             if (value.isObject()){
@@ -54,21 +56,24 @@ bool MainWindow::parseReceipt(QByteArray jsonText)
                                 QJsonValue quantity = item.value("quantity");
                                 if(sum.isDouble() && name.isString() && quantity.isDouble()){
                                     QString eName = name.toString().replace(";","",Qt::CaseInsensitive);
-                                    int index = getItemIndex(eName);
-                                    if (index==-1){
+//                                    int index = getItemIndex(eName);
+//                                    if (index==-1)
+                                    {
                                         sItem it;
                                         it.name = eName;
                                         it.price = sum.toInt();
                                         it.count = quantity.toDouble();
                                         m_Items.append(it);
+                                        qDebug() << "adding" << it.name << m_Items.count();
                                     }
-                                    else{
-                                        m_Items[index].count+=quantity.toDouble();
-                                        m_Items[index].price+=sum.toInt();
-                                    }
+//                                    else{
+//                                        m_Items[index].count+=quantity.toDouble();
+//                                        m_Items[index].price+=sum.toInt();
+//                                    }
                                 }
                             }
                         }
+
 
                         QJsonValue vdateTime = receipt.value("dateTime");
                         if (vdateTime.isString()){
@@ -292,6 +297,7 @@ MainWindow::MainWindow(QWidget *parent) :
     m_FakeDeviceID = m_Settings.value("User/DeviceID",QUuid::createUuid().toString()).toString();
     ui->lineEditUser->setText(m_Settings.value("User/Phone").toString());
     ui->lineEditPassword->setText(m_Settings.value("User/Password").toString());
+    m_ScanDialog.setAppendToTable(m_Settings.value("User/isAppendTable", true).toBool());
 
     connect(&m_NAM, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(replyFinished(QNetworkReply*)));
@@ -354,6 +360,7 @@ void MainWindow::on_pushButton_clicked()
         m_Settings.setValue("User/Phone", ui->lineEditUser->text());
         m_Settings.setValue("User/Password", ui->lineEditPassword->text());
         m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
+        m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
         m_Settings.sync();
 
         sendRequest();

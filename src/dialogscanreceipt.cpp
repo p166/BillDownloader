@@ -142,3 +142,13 @@ void DialogScanReceipt::on_pushButtonManualInput_clicked()
         return;
     accept();
 }
+
+bool DialogScanReceipt::isAppendToTable()
+{
+    return ui->cbAppendToTable->isChecked();
+}
+
+bool DialogScanReceipt::setAppendToTable(bool append)
+{
+    ui->cbAppendToTable->setChecked(append);
+}

@@ -30,6 +30,8 @@ public:
     QString getFN();
     QString getFD();
     QString getFPD();
+    bool isAppendToTable();
+    bool setAppendToTable(bool append);
 
 private slots:
     void on_comboBox_currentIndexChanged(int index);
@@ -39,6 +41,7 @@ private slots:
     void on_readyForCaptureChanged(bool);
 
     void on_pushButtonManualInput_clicked();
+
 
 private:
     Ui::DialogScanReceipt *ui;
