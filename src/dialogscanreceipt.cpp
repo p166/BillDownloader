@@ -110,6 +110,7 @@ void DialogScanReceipt::on_imageAvailable(int , const QVideoFrame &buffer)
     }
     frame.unmap();
 
+    ui->widget->setImage(img);
     QString data = m_Decoder.decodeImage(img);
     if (!data.isEmpty()){
         QUrlQuery query(data);
@@ -119,10 +120,18 @@ void DialogScanReceipt::on_imageAvailable(int , const QVideoFrame &buffer)
         ui->lineEdit_fn->setText(fn);
         ui->lineEdit_fd->setText(fd);
         ui->lineEdit_fpd->setText(fpd);
-        on_pushButtonManualInput_clicked();
+        if (ui->cbPacketImages->isChecked()) {
+            //TODO: нужно добавить в таблицу распознанных
+            emit imageDecoded();
+            qApp->processEvents();
+            QMessageBox::information(this, QString::fromUtf8("Код распознан"),
+                                           QString::fromUtf8("Код с камеры успешно распознан, \n нажмите ОК и покажите следующий чек."),
+                                           QMessageBox::Ok);
+        } else {
+            on_pushButtonManualInput_clicked();
+        }
     }
 
-    ui->widget->setImage(img);
 
     m_CaptureImage->capture("img.jpg");
 }
@@ -148,7 +157,7 @@ bool DialogScanReceipt::isAppendToTable()
     return ui->cbAppendToTable->isChecked();
 }
 
-bool DialogScanReceipt::setAppendToTable(bool append)
+void DialogScanReceipt::setAppendToTable(bool append)
 {
     ui->cbAppendToTable->setChecked(append);
 }

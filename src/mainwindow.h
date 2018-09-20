@@ -78,8 +78,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void imageDecoded();
+
 private slots:
     void on_pushButton_clicked();
+
 private slots:
     void replyFinished(QNetworkReply* reply);
     void onCountFactorValueChanged(double value);
@@ -92,6 +96,7 @@ private slots:
 
     void on_btClearTable_clicked();
 
+    void addingDecodedDate();
 private:
     Ui::MainWindow *ui;
 };

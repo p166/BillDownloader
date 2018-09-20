@@ -302,6 +302,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&m_NAM, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(replyFinished(QNetworkReply*)));
 
+    connect(&m_ScanDialog, SIGNAL(imageDecoded()), this, SLOT(imageDecoded()));
+
     loadItems();
 
     QFile textFile("categories.txt");
@@ -318,6 +320,11 @@ MainWindow::MainWindow(QWidget *parent) :
     }
     m_Categories.sort();
     m_Categories.insert(0,"");
+}
+
+void MainWindow::imageDecoded()
+{
+    addingDecodedDate();
 }
 
 MainWindow::~MainWindow()
@@ -357,14 +364,19 @@ void MainWindow::sendRequest()
 void MainWindow::on_pushButton_clicked()
 {
     if (m_ScanDialog.exec()){
-        m_Settings.setValue("User/Phone", ui->lineEditUser->text());
-        m_Settings.setValue("User/Password", ui->lineEditPassword->text());
-        m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
-        m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
-        m_Settings.sync();
-
-        sendRequest();
+        addingDecodedDate();
     }
+}
+
+void MainWindow::addingDecodedDate()
+{
+    m_Settings.setValue("User/Phone", ui->lineEditUser->text());
+    m_Settings.setValue("User/Password", ui->lineEditPassword->text());
+    m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
+    m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
+    m_Settings.sync();
+
+    sendRequest();
 }
 
 void MainWindow::replyFinished(QNetworkReply *reply)

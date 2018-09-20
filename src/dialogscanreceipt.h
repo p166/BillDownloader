@@ -7,6 +7,7 @@
 #include <QCameraImageCapture>
 #include <QCameraViewfinder>
 #include <QZXing.h>
+#include <QMessageBox>
 
 namespace Ui {
 class DialogScanReceipt;
@@ -31,7 +32,7 @@ public:
     QString getFD();
     QString getFPD();
     bool isAppendToTable();
-    bool setAppendToTable(bool append);
+    void setAppendToTable(bool append);
 
 private slots:
     void on_comboBox_currentIndexChanged(int index);
@@ -45,6 +46,9 @@ private slots:
 
 private:
     Ui::DialogScanReceipt *ui;
+
+signals:
+    void imageDecoded();
 };
 
 #endif // DIALOGSCANRECEIPT_H
