@@ -14,8 +14,8 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QLabel" name="label">
@@ -61,17 +61,34 @@
       </item>
      </layout>
     </item>
-    <item>
-     <widget class="QDateTimeEdit" name="dateTimeEdit">
-      <property name="displayFormat">
-       <string>dd.MM.yyyy hh:mm</string>
-      </property>
-      <property name="calendarPopup">
-       <bool>true</bool>
-      </property>
-     </widget>
+    <item row="1" column="0">
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QDateTimeEdit" name="dateTimeEdit">
+        <property name="displayFormat">
+         <string>dd.MM.yyyy hh:mm</string>
+        </property>
+        <property name="calendarPopup">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btClearTable">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Clear table</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
-    <item>
+    <item row="2" column="0">
      <widget class="QTableWidget" name="tableWidget"/>
     </item>
    </layout>

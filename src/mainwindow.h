@@ -90,6 +90,8 @@ private slots:
     void onWarrantyTypeValueChanged(int value);
     void on_pushButton_2_clicked();
 
+    void on_btClearTable_clicked();
+
 private:
     Ui::MainWindow *ui;
 };

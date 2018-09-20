@@ -535,3 +535,9 @@ void MainWindow::on_pushButton_2_clicked()
     saveItems();
     m_CopyTextDialog.exec(generateCSV());
 }
+
+void MainWindow::on_btClearTable_clicked()
+{
+    m_Items.clear();
+    reinitTable();
+}
