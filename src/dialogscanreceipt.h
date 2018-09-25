@@ -9,6 +9,9 @@
 #include <QZXing.h>
 #include <QMessageBox>
 
+#include "modelscan.h"
+
+
 namespace Ui {
 class DialogScanReceipt;
 }
@@ -17,32 +20,35 @@ class DialogScanReceipt : public QDialog
 {
     Q_OBJECT
 private:
-    QZXing              m_Decoder;
+    QZXing               m_Decoder;
 
-    QCamera*            m_Camera;
-    QCameraImageCapture*m_CaptureImage;
+    QCamera*             m_Camera;
+    QCameraImageCapture *m_CaptureImage;
+
     void fillCamerasList();
 public:
     explicit DialogScanReceipt(QWidget *parent = 0);
     ~DialogScanReceipt();
 
     virtual int exec() override;
+    ModelScan            m_Model;
 
     QString getFN();
     QString getFD();
     QString getFPD();
     bool isAppendToTable();
-    void setAppendToTable(bool append);
+    void setIsAppendToTable(bool value);
+    bool isPacketImages();
+    void setIsPacketImages(bool value);
 
 private slots:
     void on_comboBox_currentIndexChanged(int index);
-
     void on_imageAvailable(int, const QVideoFrame &buffer);
-
     void on_readyForCaptureChanged(bool);
-
     void on_pushButtonManualInput_clicked();
 
+
+    void on_btReconize_clicked();
 
 private:
     Ui::DialogScanReceipt *ui;

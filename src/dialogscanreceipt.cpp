@@ -13,17 +13,20 @@ void DialogScanReceipt::fillCamerasList()
         prev = 0;
     ui->comboBox->setCurrentIndex(prev);
     //on_comboBox_currentIndexChanged(ui->comboBox->currentIndex());
+
 }
 
 DialogScanReceipt::DialogScanReceipt(QWidget *parent) :
     QDialog(parent),
     m_Camera(nullptr),
     m_CaptureImage(nullptr),
+    m_Model(nullptr),
     ui(new Ui::DialogScanReceipt)
 {
     ui->setupUi(this);
 
     m_Decoder.setDecoder( QZXing::DecoderFormat_QR_CODE );
+    ui->tableView->setModel(&m_Model);
 
     fillCamerasList();
 }
@@ -120,6 +123,7 @@ void DialogScanReceipt::on_imageAvailable(int , const QVideoFrame &buffer)
         ui->lineEdit_fn->setText(fn);
         ui->lineEdit_fd->setText(fd);
         ui->lineEdit_fpd->setText(fpd);
+        m_Model.addData(fn,fd,fpd);
         if (ui->cbPacketImages->isChecked()) {
             //TODO: нужно добавить в таблицу распознанных
             emit imageDecoded();
@@ -149,6 +153,11 @@ void DialogScanReceipt::on_pushButtonManualInput_clicked()
         return;
     if (ui->lineEdit_fpd->text().isEmpty())
         return;
+
+    if (ui->cbPacketImages->isChecked()) {
+        m_Model.addData(ui->lineEdit_fn->text(),ui->lineEdit_fd->text(),ui->lineEdit_fpd->text());
+        return;
+    }
     accept();
 }
 
@@ -157,7 +166,22 @@ bool DialogScanReceipt::isAppendToTable()
     return ui->cbAppendToTable->isChecked();
 }
 
-void DialogScanReceipt::setAppendToTable(bool append)
+void DialogScanReceipt::setIsAppendToTable(bool value)
 {
-    ui->cbAppendToTable->setChecked(append);
+    ui->cbAppendToTable->setChecked(value);
+}
+
+bool DialogScanReceipt::isPacketImages()
+{
+    return ui->cbPacketImages->isChecked();
+}
+
+void DialogScanReceipt::setIsPacketImages(bool value)
+{
+    ui->cbPacketImages->setChecked(value);
+}
+
+void DialogScanReceipt::on_btReconize_clicked()
+{
+    accept();
 }
