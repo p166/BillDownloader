@@ -9,6 +9,54 @@
 #include <QDoubleSpinBox>
 #include <QMessageBox>
 
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    m_ScanDialog(this),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+
+    m_FakeDeviceID = m_Settings.value("User/DeviceID",QUuid::createUuid().toString()).toString();
+    ui->lineEditUser->setText(m_Settings.value("User/Phone").toString());
+    ui->lineEditPassword->setText(m_Settings.value("User/Password").toString());
+    m_ScanDialog.setIsAppendToTable(m_Settings.value("User/isAppendTable", true).toBool());
+    m_ScanDialog.setIsPacketImages(m_Settings.value("User/isPacketImages", true).toBool());
+
+    connect(&m_NAM, SIGNAL(finished(QNetworkReply*)),
+                this, SLOT(replyFinished(QNetworkReply*)));
+
+    connect(&m_ScanDialog, SIGNAL(imageDecoded()), this, SLOT(imageDecoded()));
+
+    loadItems();
+
+    QFile textFile("categories.txt");
+    if (textFile.open(QIODevice::ReadOnly)){
+        QTextStream textStream(&textFile);
+        while (true)
+        {
+            QString line = textStream.readLine();
+            if (line.isNull())
+                break;
+            else
+                m_Categories.append(line);
+        }
+    }
+    m_Categories.sort();
+    m_Categories.insert(0,"");
+}
+
+MainWindow::~MainWindow()
+{
+    m_Settings.setValue("User/Phone", ui->lineEditUser->text());
+    m_Settings.setValue("User/Password", ui->lineEditPassword->text());
+    m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
+    m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
+    m_Settings.setValue("User/isPacketImages", m_ScanDialog.isPacketImages());
+    m_Settings.sync();
+
+    delete ui;
+}
+
 inline QString priceToString(int price){
     return QString::number(price/100.f,'f',2);
 }
@@ -287,58 +335,40 @@ QStringList MainWindow::generateCSV()
     return csv;
 }
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    m_ScanDialog(this),
-    ui(new Ui::MainWindow)
+void MainWindow::imageDecoded()
 {
-    ui->setupUi(this);
-
-    m_FakeDeviceID = m_Settings.value("User/DeviceID",QUuid::createUuid().toString()).toString();
-    ui->lineEditUser->setText(m_Settings.value("User/Phone").toString());
-    ui->lineEditPassword->setText(m_Settings.value("User/Password").toString());
-    m_ScanDialog.setAppendToTable(m_Settings.value("User/isAppendTable", true).toBool());
-
-    connect(&m_NAM, SIGNAL(finished(QNetworkReply*)),
-                this, SLOT(replyFinished(QNetworkReply*)));
-
-    loadItems();
-
-    QFile textFile("categories.txt");
-    if (textFile.open(QIODevice::ReadOnly)){
-        QTextStream textStream(&textFile);
-        while (true)
-        {
-            QString line = textStream.readLine();
-            if (line.isNull())
-                break;
-            else
-                m_Categories.append(line);
-        }
-    }
-    m_Categories.sort();
-    m_Categories.insert(0,"");
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
+    sendRequest();
 }
 
 QString encod2eBase64( QString data )
 {
- QByteArray text;
- text.append(data);
- return text.toBase64();
+    QByteArray text;
+    text.append(data);
+    return text.toBase64();
 }
 
 void MainWindow::sendRequest()
 {
+    if (!m_ScanDialog.isAppendToTable()) {
+        ui->tableWidget->clear();
+    }
+    if (m_ScanDialog.isPacketImages()) {
+        foreach (RECONIZE_ITEM item, m_ScanDialog.m_Model.vector) {
+            if (item.result == NO_RECONIZE)
+                sendRequest(item.FN, item.FD, item.FPD);
+        }
 
-    QUrl url("https://proverkacheka.nalog.ru:9999/v1/inns/*/kkts/*/fss/"+m_ScanDialog.getFN()+"/tickets/"+m_ScanDialog.getFD());
+    } else {
+        sendRequest(m_ScanDialog.getFN(), m_ScanDialog.getFD(), m_ScanDialog.getFPD());
+    }
+}
+
+void MainWindow::sendRequest(const QString fn, const QString fd, const QString fpd)
+{
+    QUrl url("https://proverkacheka.nalog.ru:9999/v1/inns/*/kkts/*/fss/"+fn+"/tickets/"+fd);
     QUrlQuery query;
 
-    query.addQueryItem("fiscalSign", m_ScanDialog.getFPD());
+    query.addQueryItem("fiscalSign", fpd);
     query.addQueryItem("sendToEmail", "no");
 
     url.setQuery(query.query());
@@ -352,19 +382,6 @@ void MainWindow::sendRequest()
     request.setRawHeader("ClientVersion", "1.4.4.1");
 
     m_NAM.get(request);
-}
-
-void MainWindow::on_pushButton_clicked()
-{
-    if (m_ScanDialog.exec()){
-        m_Settings.setValue("User/Phone", ui->lineEditUser->text());
-        m_Settings.setValue("User/Password", ui->lineEditPassword->text());
-        m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
-        m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
-        m_Settings.sync();
-
-        sendRequest();
-    }
 }
 
 void MainWindow::replyFinished(QNetworkReply *reply)
@@ -514,7 +531,25 @@ void MainWindow::onWarrantyTypeValueChanged(int value)
     m_Items[index].warrantyType = (eWarrantyType)value;
 }
 
-void MainWindow::on_pushButton_2_clicked()
+void MainWindow::on_btClearTable_clicked()
+{
+    m_Items.clear();
+    reinitTable();
+}
+
+//TODO: экспорт для программы AbilityCash в формате xml
+void MainWindow::on_btAbilityCashExport_clicked()
+{
+}
+
+void MainWindow::on_btRequest_clicked()
+{
+    if (m_ScanDialog.exec()){
+        sendRequest();
+    }
+}
+
+void MainWindow::on_btResult_clicked()
 {
     for (int i = 0; i<m_Items.count(); ++i){
         m_Items[i].newname = m_Items[i].newname.replace(";","");
@@ -534,10 +569,4 @@ void MainWindow::on_pushButton_2_clicked()
 
     saveItems();
     m_CopyTextDialog.exec(generateCSV());
-}
-
-void MainWindow::on_btClearTable_clicked()
-{
-    m_Items.clear();
-    reinitTable();
 }

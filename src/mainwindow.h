@@ -9,6 +9,9 @@
 #include <QNetworkAccessManager>
 #include <QCompleter>
 
+#include "utils.h"
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -73,13 +76,17 @@ private:
     void loadItems();
     void saveItems();
     void sendRequest();
+    void sendRequest(const QString fn, const QString fd, const QString fpd);
     QStringList generateCSV();
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+public slots:
+    void imageDecoded();
+
 private slots:
-    void on_pushButton_clicked();
+
 private slots:
     void replyFinished(QNetworkReply* reply);
     void onCountFactorValueChanged(double value);
@@ -88,9 +95,14 @@ private slots:
     void onNewNameValueChanged(QString value);
     void onWarrantyPeriodValueChanged(int value);
     void onWarrantyTypeValueChanged(int value);
-    void on_pushButton_2_clicked();
 
     void on_btClearTable_clicked();
+
+    void on_btAbilityCashExport_clicked();
+
+    void on_btRequest_clicked();
+
+    void on_btResult_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -33,12 +33,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     cwimage.cpp \
     dialogscanreceipt.cpp \
-    dialogcopytext.cpp
+    dialogcopytext.cpp \
+    modelscan.cpp
 
 HEADERS  += mainwindow.h \
     cwimage.h \
     dialogscanreceipt.h \
-    dialogcopytext.h
+    dialogcopytext.h \
+    modelscan.h \
+    utils.h
 
 FORMS    += mainwindow.ui \
     dialogscanreceipt.ui \
