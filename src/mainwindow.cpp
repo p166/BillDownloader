@@ -540,6 +540,8 @@ void MainWindow::on_btClearTable_clicked()
 //TODO: экспорт для программы AbilityCash в формате xml
 void MainWindow::on_btAbilityCashExport_clicked()
 {
+    AbilityCashExport e;
+    e.export_xml();
 }
 
 void MainWindow::on_btRequest_clicked()

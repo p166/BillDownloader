@@ -34,14 +34,26 @@ SOURCES += main.cpp\
     cwimage.cpp \
     dialogscanreceipt.cpp \
     dialogcopytext.cpp \
-    modelscan.cpp
+    modelscan.cpp \
+    export/abilitycash/abilitycashexport.cpp \
+    export/abilitycash/ac_currencies.cpp \
+    export/abilitycash/ac_classifiers.cpp \
+    export/abilitycash/ac_transactions.cpp \
+    export/abilitycash/ac_export_options.cpp \
+    export/abilitycash/ac_accounts.cpp
 
 HEADERS  += mainwindow.h \
     cwimage.h \
     dialogscanreceipt.h \
     dialogcopytext.h \
     modelscan.h \
-    utils.h
+    utils.h \
+    export/abilitycash/abilitycashexport.h \
+    export/abilitycash/ac_currencies.h \
+    export/abilitycash/ac_classifiers.h \
+    export/abilitycash/ac_transactions.h \
+    export/abilitycash/ac_export_options.h \
+    export/abilitycash/ac_accounts.h
 
 FORMS    += mainwindow.ui \
     dialogscanreceipt.ui \

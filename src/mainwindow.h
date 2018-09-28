@@ -9,6 +9,7 @@
 #include <QNetworkAccessManager>
 #include <QCompleter>
 
+#include "export/abilitycash/abilitycashexport.h"
 #include "utils.h"
 
 
@@ -95,13 +96,9 @@ private slots:
     void onNewNameValueChanged(QString value);
     void onWarrantyPeriodValueChanged(int value);
     void onWarrantyTypeValueChanged(int value);
-
     void on_btClearTable_clicked();
-
     void on_btAbilityCashExport_clicked();
-
     void on_btRequest_clicked();
-
     void on_btResult_clicked();
 
 private:
