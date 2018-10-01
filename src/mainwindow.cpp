@@ -22,13 +22,34 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ScanDialog.setIsAppendToTable(m_Settings.value("User/isAppendTable", true).toBool());
     m_ScanDialog.setIsPacketImages(m_Settings.value("User/isPacketImages", true).toBool());
 
+    qDebug() << "login:" << ui->lineEditUser->text();
+    qDebug() << "pass:" << ui->lineEditPassword->text();
+
     connect(&m_NAM, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(replyFinished(QNetworkReply*)));
 
     connect(&m_ScanDialog, SIGNAL(imageDecoded()), this, SLOT(imageDecoded()));
 
     loadItems();
+    loadCategories();
+}
 
+MainWindow::~MainWindow()
+{
+    m_Settings.setValue("User/Phone", ui->lineEditUser->text());
+    m_Settings.setValue("User/Password", ui->lineEditPassword->text());
+    m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
+    m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
+    m_Settings.setValue("User/isPacketImages", m_ScanDialog.isPacketImages());
+    m_Settings.sync();
+
+    saveCategories();
+
+    delete ui;
+}
+
+void MainWindow::loadCategories()
+{
     QFile textFile("categories.txt");
     if (textFile.open(QIODevice::ReadOnly)){
         QTextStream textStream(&textFile);
@@ -45,16 +66,22 @@ MainWindow::MainWindow(QWidget *parent) :
     m_Categories.insert(0,"");
 }
 
-MainWindow::~MainWindow()
+void MainWindow::saveCategories()
 {
-    m_Settings.setValue("User/Phone", ui->lineEditUser->text());
-    m_Settings.setValue("User/Password", ui->lineEditPassword->text());
-    m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
-    m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
-    m_Settings.setValue("User/isPacketImages", m_ScanDialog.isPacketImages());
-    m_Settings.sync();
+    for (int i=0;i<m_Items.count(); i++) {
+        m_Categories.append(m_Items.at(i).category);
+    }
+    m_Categories.sort();
+    m_Categories.removeDuplicates();
 
-    delete ui;
+    QFile textFile("categories.txt");
+    if (textFile.open(QIODevice::WriteOnly)){
+        QTextStream out(&textFile);
+        foreach (auto cat, m_Categories) {
+            out << cat << "\n";
+        }
+    }
+    textFile.close();
 }
 
 inline QString priceToString(int price){
@@ -95,6 +122,17 @@ bool MainWindow::parseReceipt(QByteArray jsonText)
                         if (!m_ScanDialog.isAppendToTable()) {
                             m_Items.clear();
                         }
+
+                        QJsonValue vdateTime = receipt.value("dateTime");
+                        if (vdateTime.isString()){
+                            m_ReceiptDateTime = QDateTime::fromString(vdateTime.toString(),"yyyy-MM-ddTHH:mm:ss");
+                            m_DateTimeAvaialble = true;
+                        }
+                        else{
+                            m_DateTimeAvaialble = false;
+                        }
+
+
                         for (int i =0; i<items.count(); ++i){
                             QJsonValue value = items.at(i);
                             if (value.isObject()){
@@ -111,8 +149,9 @@ bool MainWindow::parseReceipt(QByteArray jsonText)
                                         it.name = eName;
                                         it.price = sum.toInt();
                                         it.count = quantity.toDouble();
+                                        it.dateTime = m_ReceiptDateTime;
                                         m_Items.append(it);
-                                        qDebug() << "adding" << it.name << m_Items.count();
+                                        qDebug() << "adding" << it.name << m_Items.count() << it.dateTime.toString("yyyy-MM-ddTHH:mm:ss");
                                     }
 //                                    else{
 //                                        m_Items[index].count+=quantity.toDouble();
@@ -123,14 +162,7 @@ bool MainWindow::parseReceipt(QByteArray jsonText)
                         }
 
 
-                        QJsonValue vdateTime = receipt.value("dateTime");
-                        if (vdateTime.isString()){
-                            m_ReceiptDateTime = QDateTime::fromString(vdateTime.toString(),"yyyy-MM-ddTHH:mm:ss");
-                            m_DateTimeAvaialble = true;
-                        }
-                        else{
-                            m_DateTimeAvaialble = false;
-                        }
+
                         return true;
                     }
                 }
@@ -406,6 +438,11 @@ void MainWindow::replyFinished(QNetworkReply *reply)
 
 void MainWindow::reinitTable()
 {
+    const QStringList columns =  QStringList() << tr("Дата")  << tr("Название") << tr("Короткое название") << tr("Количество в штуке")
+                                         << tr("Количество штук") << tr("Единицы") << tr("Цена за все")
+                                         << tr("Категория") << tr("Общее количество") << tr("Период гарантии")
+                                         << tr("Тип гарантии");
+
     QStringList lst;
     auto it = m_SavedItems.begin();
     while (it!=m_SavedItems.end()){
@@ -422,19 +459,22 @@ void MainWindow::reinitTable()
     ui->tableWidget->clear();
     ui->tableWidget->setRowCount(0);
 
-    ui->tableWidget->setColumnCount(10);
     ui->tableWidget->setShowGrid(true);
     ui->tableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->tableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->tableWidget->setHorizontalHeaderLabels(QStringList() << tr("Название") << tr("Короткое название") << tr("Количество в штуке") << tr("Количество штук") << tr("Единицы") << tr("Цена за все") << tr("Категория") << tr("Общее количество") << tr("Период гарантии") << tr("Тип гарантии"));
+    ui->tableWidget->setColumnCount(columns.count());
+    ui->tableWidget->setHorizontalHeaderLabels(columns);
     ui->tableWidget->horizontalHeader()->setStretchLastSection(true);
 
     for (int i = 0; i<m_Items.count(); ++i){
         ui->tableWidget->insertRow(i);
-        ui->tableWidget->setItem(i,0, new QTableWidgetItem(m_Items[i].name));
+
+        ui->tableWidget->setItem(i,COL_DATE, new QTableWidgetItem(m_Items[i].dateTime.toString("dd-MM-yyyy HH:mm")));
+
+        ui->tableWidget->setItem(i,COL_NAME, new QTableWidgetItem(m_Items[i].name));
         {
             QLineEdit* lineEdit = new QLineEdit();
-            ui->tableWidget->setCellWidget(i,1,lineEdit);
+            ui->tableWidget->setCellWidget(i,COL_SHOT_NAME,lineEdit);
             lineEdit->setText(m_Items[i].newname);
             lineEdit->setCompleter(&m_NewNameAutoComplete);
             lineEdit->setProperty("index",i);
@@ -443,27 +483,27 @@ void MainWindow::reinitTable()
 
         {
             QDoubleSpinBox* spinBox = new QDoubleSpinBox();
-            ui->tableWidget->setCellWidget(i,2,spinBox);
+            ui->tableWidget->setCellWidget(i,COL_COUNT_IN,spinBox);
             spinBox->setValue(m_Items[i].countFactor);
             spinBox->setProperty("index",i);
             connect(spinBox,SIGNAL(valueChanged(double)),this,SLOT(onCountFactorValueChanged(double)));
         }
-        ui->tableWidget->setItem(i,3, new QTableWidgetItem(QString::number(m_Items[i].count)));
+        ui->tableWidget->setItem(i,COL_COUNT, new QTableWidgetItem(QString::number(m_Items[i].count)));
 
         {
             QComboBox* combo = new QComboBox();
-            ui->tableWidget->setCellWidget(i,4,combo);
+            ui->tableWidget->setCellWidget(i,COL_EDIZM,combo);
             combo->addItems(QStringList() << "" << "ШТ" << "Л" << "КГ" << "УП");
             combo->setCurrentText(m_Items[i].countType);
             combo->setProperty("index",i);
             connect(combo, SIGNAL(currentTextChanged(QString)),this, SLOT(onCountTypeValueChanged(QString)));
         }
 
-        ui->tableWidget->setItem(i,5, new QTableWidgetItem(priceToString(m_Items[i].price)));
+        ui->tableWidget->setItem(i,COL_COST, new QTableWidgetItem(priceToString(m_Items[i].price)));
 
         {
             QComboBox* combo = new QComboBox();
-            ui->tableWidget->setCellWidget(i,6,combo);
+            ui->tableWidget->setCellWidget(i,COL_CATEGOTRY,combo);
             combo->addItems(m_Categories);
             combo->setCurrentText(m_Items[i].category);
             combo->setProperty("index",i);
@@ -471,11 +511,11 @@ void MainWindow::reinitTable()
             connect(combo, SIGNAL(currentTextChanged(QString)),this, SLOT(onCategoryValueChanged(QString)));
         }
 
-        ui->tableWidget->setItem(i,7, new QTableWidgetItem(m_Items[i].getTotalCount()));
+        ui->tableWidget->setItem(i,COL_SUM_COUNT, new QTableWidgetItem(m_Items[i].getTotalCount()));
 
         {
             QSpinBox* spinBox = new QSpinBox();
-            ui->tableWidget->setCellWidget(i,8,spinBox);
+            ui->tableWidget->setCellWidget(i,COL_GAR,spinBox);
             spinBox->setValue(m_Items[i].warrantyPeriod);
             spinBox->setProperty("index",i);
             spinBox->setMaximum(9999);
@@ -484,27 +524,29 @@ void MainWindow::reinitTable()
 
         {
             QComboBox* combo = new QComboBox();
-            ui->tableWidget->setCellWidget(i,9,combo);
+            ui->tableWidget->setCellWidget(i,COL_TYPE_GAR,combo);
             combo->addItems(QStringList() << "" << tr("ДНИ") << tr("МЕСЯЦЫ") << tr("ГОДА"));
             combo->setCurrentIndex((int)m_Items[i].warrantyType);
             combo->setProperty("index",i);
             connect(combo, SIGNAL(currentIndexChanged(int)),this, SLOT(onWarrantyTypeValueChanged(int)));
         }
     }
+
+    ui->tableWidget->resizeColumnsToContents();
 }
 
 void MainWindow::onCountFactorValueChanged(double value)
 {
     int index = sender()->property("index").toInt();
     m_Items[index].countFactor = value;
-    ui->tableWidget->item(index,7)->setText(m_Items[index].getTotalCount());
+    ui->tableWidget->item(index,COL_SUM_COUNT)->setText(m_Items[index].getTotalCount());
 }
 
 void MainWindow::onCountTypeValueChanged(QString value)
 {
     int index = sender()->property("index").toInt();
     m_Items[index].countType = value;
-    ui->tableWidget->item(index,7)->setText(m_Items[index].getTotalCount());
+    ui->tableWidget->item(index,COL_SUM_COUNT)->setText(m_Items[index].getTotalCount());
 }
 
 void MainWindow::onCategoryValueChanged(QString value)
@@ -540,6 +582,9 @@ void MainWindow::on_btClearTable_clicked()
 //TODO: экспорт для программы AbilityCash в формате xml
 void MainWindow::on_btAbilityCashExport_clicked()
 {
+    AbilityCashExport e(&m_Items);
+    e.export_xml("./ability_cash.xml");
+    QMessageBox::information(0,tr("Экспорт завершен"),tr("Экспорт в формат AbilityCach завершен!"));
 }
 
 void MainWindow::on_btRequest_clicked()

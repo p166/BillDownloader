@@ -9,7 +9,10 @@
 #include <QNetworkAccessManager>
 #include <QCompleter>
 
+#include "export/abilitycash/abilitycashexport.h"
 #include "utils.h"
+
+enum COLUMNS {COL_DATE, COL_NAME, COL_SHOT_NAME, COL_COUNT_IN, COL_COUNT, COL_EDIZM, COL_COST, COL_CATEGOTRY, COL_SUM_COUNT, COL_GAR, COL_TYPE_GAR};
 
 
 namespace Ui {
@@ -21,27 +24,9 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    enum eWarrantyType{
-        NONE = 0,
-        DAYS,
-        MONTHS,
-        YEARS
-    };
 
-    struct sItem{
-        QString name;
-        QString newname;
-        float count;
-        float countFactor;
-        QString countType;
-        QString category;
-        eWarrantyType warrantyType;
-        int warrantyPeriod;
-        int price;
-        QString getTotalCount(){
-            return QString::number(count*countFactor)+countType;
-        }
-    };
+
+
 
     struct sSavedItem{
         QString name;
@@ -75,6 +60,8 @@ private:
 
     void loadItems();
     void saveItems();
+    void loadCategories();
+    void saveCategories();
     void sendRequest();
     void sendRequest(const QString fn, const QString fd, const QString fpd);
     QStringList generateCSV();
@@ -95,13 +82,9 @@ private slots:
     void onNewNameValueChanged(QString value);
     void onWarrantyPeriodValueChanged(int value);
     void onWarrantyTypeValueChanged(int value);
-
     void on_btClearTable_clicked();
-
     void on_btAbilityCashExport_clicked();
-
     void on_btRequest_clicked();
-
     void on_btResult_clicked();
 
 private:
