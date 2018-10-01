@@ -45,7 +45,7 @@ void AC_transactions::write_transaction(QXmlStreamWriter *xml, sItem it)
     xml->writeStartElement("transaction");
         xml->writeAttribute("oid", getGuid());
         xml->writeAttribute("changed-at", getDateTime());
-        xml->writeTextElement("date", it.dateTime.toString("yyyy:MM:dd"));
+        xml->writeTextElement("date", it.dateTime.toString("yyyy-MM-dd"));
             xml->writeStartElement("expense");
                 xml->writeStartElement("executed");
                 xml->writeEndElement();
@@ -55,7 +55,7 @@ void AC_transactions::write_transaction(QXmlStreamWriter *xml, sItem it)
                 xml->writeEndElement();
 
                 char f;
-                xml->writeTextElement("expense-amount", QString::number(-it.price/100.0, f, 1)); //SUM
+                xml->writeTextElement("expense-amount", QString::number((double)(-it.price)/100.0, f, 1)); //SUM
                 xml->writeTextElement("expense-balance", QString::fromUtf8("0"));
 
                 xml->writeStartElement("category");
