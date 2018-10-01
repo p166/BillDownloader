@@ -32,8 +32,9 @@ AC_classifiers::AC_classifiers()
 //</classifiers>
 
 
-void AC_classifiers::write(QXmlStreamWriter *xml)
+void AC_classifiers::write(QXmlStreamWriter *xml, QVector<sItem> *items)
 {
+    this->items = items;
     xml->writeStartElement("classifiers");
         xml->writeStartElement("classifier");
             xml->writeAttribute("oid", getGuid());
@@ -48,12 +49,52 @@ void AC_classifiers::write(QXmlStreamWriter *xml)
                     xml->writeEndElement();
                 xml->writeEndElement();
                 xml->writeStartElement("expense-tree");
+                write_expense_tree(xml);
                 xml->writeEndElement();
         xml->writeEndElement();
     xml->writeEndElement();
+}
 
+//запись дерева категорий расхода expense-tree
+void AC_classifiers::write_expense_tree(QXmlStreamWriter *xml)
+{
+    xml->writeStartElement("category");
+    xml->writeAttribute("oid", getGuid());
+    xml->writeAttribute("changed-at", getDateTime());
+    xml->writeTextElement("name", QString::fromUtf8("Все статьи расхода"));
 
-//    xml->writeTextElement("name", QString::fromUtf8("Российские рубли"));
-//    xml->writeTextElement("code", QString::fromUtf8("RUR"));
-//    xml->writeTextElement("precision", "2");
+    QStringList ls = make_categories_list();
+    for (int i=0; i<ls.count(); i++) {
+        QString cat = ls.at(i);
+        QStringList split = cat.split("/");
+        write_category(xml, split);
+    }
+
+    xml->writeEndElement();
+}
+
+void AC_classifiers::write_category(QXmlStreamWriter *xml, QStringList category)
+{
+    xml->writeStartElement("category");
+    xml->writeAttribute("oid", getGuid());
+    xml->writeAttribute("changed-at", getDateTime());
+    xml->writeTextElement("name", category[0]);
+    category.removeAt(0);
+    if (category.count()>0)
+        write_category(xml, category);
+    xml->writeEndElement();
+}
+
+//список категорий без дубликатов
+QStringList AC_classifiers::make_categories_list()
+{
+    QStringList ls;
+    for (int i=0;i<items->count(); i++) {
+        if (!items->at(i).category.isEmpty())
+            ls<<items->at(i).category;
+    }
+    ls.sort();
+    ls.removeDuplicates();
+    qDebug()<< "make_categories_list:" << ls.count();
+    return ls;
 }

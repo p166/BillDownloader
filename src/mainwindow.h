@@ -24,28 +24,9 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-    enum eWarrantyType{
-        NONE = 0,
-        DAYS,
-        MONTHS,
-        YEARS
-    };
 
-    struct sItem{
-        QString name;
-        QString newname;
-        float count;
-        float countFactor;
-        QString countType;
-        QString category;
-        eWarrantyType warrantyType;
-        int warrantyPeriod;
-        int price;
-        QDateTime dateTime;
-        QString getTotalCount(){
-            return QString("%1 %2").arg(QString::number(count*countFactor)).arg(countType);
-        }
-    };
+
+
 
     struct sSavedItem{
         QString name;
@@ -79,6 +60,8 @@ private:
 
     void loadItems();
     void saveItems();
+    void loadCategories();
+    void saveCategories();
     void sendRequest();
     void sendRequest(const QString fn, const QString fd, const QString fpd);
     QStringList generateCSV();

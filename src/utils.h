@@ -9,6 +9,29 @@
 #include "QString"
 #include <QDateTime>
 
+enum eWarrantyType{
+    NONE = 0,
+    DAYS,
+    MONTHS,
+    YEARS
+};
+
+struct sItem{
+    QString name;
+    QString newname;
+    float count;
+    float countFactor;
+    QString countType;
+    QString category;
+    eWarrantyType warrantyType;
+    int warrantyPeriod;
+    int price;
+    QDateTime dateTime;
+    QString getTotalCount(){
+        return QString("%1 %2").arg(QString::number(count*countFactor)).arg(countType);
+    }
+};
+
 inline char* generateGuid(char *guidStr)
 {
     char *pGuidStr = guidStr;

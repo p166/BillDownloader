@@ -22,13 +22,34 @@ MainWindow::MainWindow(QWidget *parent) :
     m_ScanDialog.setIsAppendToTable(m_Settings.value("User/isAppendTable", true).toBool());
     m_ScanDialog.setIsPacketImages(m_Settings.value("User/isPacketImages", true).toBool());
 
+    qDebug() << "login:" << ui->lineEditUser->text();
+    qDebug() << "pass:" << ui->lineEditPassword->text();
+
     connect(&m_NAM, SIGNAL(finished(QNetworkReply*)),
                 this, SLOT(replyFinished(QNetworkReply*)));
 
     connect(&m_ScanDialog, SIGNAL(imageDecoded()), this, SLOT(imageDecoded()));
 
     loadItems();
+    loadCategories();
+}
 
+MainWindow::~MainWindow()
+{
+    m_Settings.setValue("User/Phone", ui->lineEditUser->text());
+    m_Settings.setValue("User/Password", ui->lineEditPassword->text());
+    m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
+    m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
+    m_Settings.setValue("User/isPacketImages", m_ScanDialog.isPacketImages());
+    m_Settings.sync();
+
+    saveCategories();
+
+    delete ui;
+}
+
+void MainWindow::loadCategories()
+{
     QFile textFile("categories.txt");
     if (textFile.open(QIODevice::ReadOnly)){
         QTextStream textStream(&textFile);
@@ -45,16 +66,22 @@ MainWindow::MainWindow(QWidget *parent) :
     m_Categories.insert(0,"");
 }
 
-MainWindow::~MainWindow()
+void MainWindow::saveCategories()
 {
-    m_Settings.setValue("User/Phone", ui->lineEditUser->text());
-    m_Settings.setValue("User/Password", ui->lineEditPassword->text());
-    m_Settings.setValue("User/DeviceID", m_FakeDeviceID);
-    m_Settings.setValue("User/isAppendTable", m_ScanDialog.isAppendToTable());
-    m_Settings.setValue("User/isPacketImages", m_ScanDialog.isPacketImages());
-    m_Settings.sync();
+    for (int i=0;i<m_Items.count(); i++) {
+        m_Categories.append(m_Items.at(i).category);
+    }
+    m_Categories.sort();
+    m_Categories.removeDuplicates();
 
-    delete ui;
+    QFile textFile("categories.txt");
+    if (textFile.open(QIODevice::WriteOnly)){
+        QTextStream out(&textFile);
+        foreach (auto cat, m_Categories) {
+            out << cat << "\n";
+        }
+    }
+    textFile.close();
 }
 
 inline QString priceToString(int price){
@@ -555,8 +582,9 @@ void MainWindow::on_btClearTable_clicked()
 //TODO: экспорт для программы AbilityCash в формате xml
 void MainWindow::on_btAbilityCashExport_clicked()
 {
-    AbilityCashExport e;
-    e.export_xml();
+    AbilityCashExport e(&m_Items);
+    e.export_xml("./ability_cash.xml");
+    QMessageBox::information(0,tr("Экспорт завершен"),tr("Экспорт в формат AbilityCach завершен!"));
 }
 
 void MainWindow::on_btRequest_clicked()

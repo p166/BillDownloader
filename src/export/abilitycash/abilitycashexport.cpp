@@ -1,8 +1,9 @@
 #include "abilitycashexport.h"
 
-AbilityCashExport::AbilityCashExport(const QString filename)
+AbilityCashExport::AbilityCashExport(QVector<sItem> *items)
 {
-    this->filename = filename;
+    this->items = items;
+    qDebug() << "Count export:" << items->count();
 }
 
 bool AbilityCashExport::export_xml(const QString filename)
@@ -21,8 +22,8 @@ bool AbilityCashExport::export_xml(const QString filename)
     ac_export_options.write(&xml);
     ac_currencies.write(&xml);
     ac_accounts.write(&xml);
-    ac_classifiers.write(&xml);
-    ac_transactions.write(&xml);
+    ac_classifiers.write(&xml, items);
+    ac_transactions.write(&xml, items);
 
     xml.writeEndElement();
     xml.writeEndDocument();

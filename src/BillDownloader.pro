@@ -58,3 +58,6 @@ HEADERS  += mainwindow.h \
 FORMS    += mainwindow.ui \
     dialogscanreceipt.ui \
     dialogcopytext.ui
+
+DISTFILES += \
+    categories.txt

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QXmlStreamWriter>
 #include <QFile>
+#include <QDebug>
 
 #include "ac_export_options.h"
 #include "ac_accounts.h"
@@ -16,7 +17,7 @@
 class AbilityCashExport
 {
 public:
-    AbilityCashExport(const QString filename="./ability_cash.xml");
+    AbilityCashExport(QVector<sItem> *items);
 
     bool export_xml(const QString filename="");
 
@@ -28,6 +29,7 @@ private:
     AC_currencies       ac_currencies;
     AC_classifiers      ac_classifiers;
     AC_transactions     ac_transactions;
+    QVector<sItem> *items;
 };
 
 #endif // ABILITYCASHEXPORT_H
