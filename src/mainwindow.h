@@ -12,6 +12,8 @@
 #include "export/abilitycash/abilitycashexport.h"
 #include "utils.h"
 
+enum COLUMNS {COL_DATE, COL_NAME, COL_SHOT_NAME, COL_COUNT_IN, COL_COUNT, COL_EDIZM, COL_COST, COL_CATEGOTRY, COL_SUM_COUNT, COL_GAR, COL_TYPE_GAR};
+
 
 namespace Ui {
 class MainWindow;
@@ -39,8 +41,9 @@ private:
         eWarrantyType warrantyType;
         int warrantyPeriod;
         int price;
+        QDateTime dateTime;
         QString getTotalCount(){
-            return QString::number(count*countFactor)+countType;
+            return QString("%1 %2").arg(QString::number(count*countFactor)).arg(countType);
         }
     };
 
