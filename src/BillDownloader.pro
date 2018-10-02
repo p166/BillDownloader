@@ -40,7 +40,9 @@ SOURCES += main.cpp\
     export/abilitycash/ac_classifiers.cpp \
     export/abilitycash/ac_transactions.cpp \
     export/abilitycash/ac_export_options.cpp \
-    export/abilitycash/ac_accounts.cpp
+    export/abilitycash/ac_accounts.cpp \
+    dialogaddfilter.cpp \
+    autofilter.cpp
 
 HEADERS  += mainwindow.h \
     cwimage.h \
@@ -53,11 +55,14 @@ HEADERS  += mainwindow.h \
     export/abilitycash/ac_classifiers.h \
     export/abilitycash/ac_transactions.h \
     export/abilitycash/ac_export_options.h \
-    export/abilitycash/ac_accounts.h
+    export/abilitycash/ac_accounts.h \
+    dialogaddfilter.h \
+    autofilter.h
 
 FORMS    += mainwindow.ui \
     dialogscanreceipt.ui \
-    dialogcopytext.ui
+    dialogcopytext.ui \
+    dialogaddfilter.ui
 
 DISTFILES += \
     categories.txt

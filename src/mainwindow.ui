@@ -87,6 +87,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btFilter">
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Add filter</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btClearTable">
         <property name="maximumSize">
          <size>

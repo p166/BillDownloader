@@ -11,6 +11,7 @@
 
 #include "export/abilitycash/abilitycashexport.h"
 #include "utils.h"
+#include "autofilter.h"
 
 enum COLUMNS {COL_DATE, COL_NAME, COL_SHOT_NAME, COL_COUNT_IN, COL_COUNT, COL_EDIZM, COL_COST, COL_CATEGOTRY, COL_SUM_COUNT, COL_GAR, COL_TYPE_GAR};
 
@@ -87,8 +88,11 @@ private slots:
     void on_btRequest_clicked();
     void on_btResult_clicked();
 
+    void on_btFilter_clicked();
+
 private:
     Ui::MainWindow *ui;
+    AutoFilter *filter;
 };
 
 #endif // MAINWINDOW_H

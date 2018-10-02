@@ -30,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&m_ScanDialog, SIGNAL(imageDecoded()), this, SLOT(imageDecoded()));
 
+    filter = new AutoFilter();
+
     loadItems();
     loadCategories();
 }
@@ -45,6 +47,7 @@ MainWindow::~MainWindow()
 
     saveCategories();
 
+    delete filter;
     delete ui;
 }
 
@@ -178,21 +181,22 @@ bool MainWindow::parseReceipt(QByteArray jsonText)
 void MainWindow::reinitItems()
 {
     for (int i = 0; i<m_Items.count(); ++i){
-        auto itemIt = m_SavedItems.find(m_Items[i].name);
-        m_Items[i].warrantyPeriod = 0;
-        m_Items[i].warrantyType = NONE;
-        if (itemIt==m_SavedItems.end()){
-            m_Items[i].category = "";
-            m_Items[i].countFactor = 1;
-            m_Items[i].countType = "";
-            m_Items[i].newname = "";
-        }
-        else{
-            m_Items[i].category = itemIt.value().category;
-            m_Items[i].countFactor = itemIt.value().countFactor;
-            m_Items[i].countType = itemIt.value().countType;
-            m_Items[i].newname = itemIt.value().newName;
-        }
+        m_Items[i].category = filter->getCategory(m_Items.at(i).name);
+//        auto itemIt = m_SavedItems.find(m_Items[i].name);
+//        m_Items[i].warrantyPeriod = 0;
+//        m_Items[i].warrantyType = NONE;
+//        if (itemIt==m_SavedItems.end()){
+//            m_Items[i].category = "";
+//            m_Items[i].countFactor = 1;
+//            m_Items[i].countType = "";
+//            m_Items[i].newname = "";
+//        }
+//        else{
+//            m_Items[i].category = itemIt.value().category;
+//            m_Items[i].countFactor = itemIt.value().countFactor;
+//            m_Items[i].countType = itemIt.value().countType;
+//            m_Items[i].newname = itemIt.value().newName;
+//        }
     }
 }
 
@@ -614,4 +618,15 @@ void MainWindow::on_btResult_clicked()
 
     saveItems();
     m_CopyTextDialog.exec(generateCSV());
+}
+
+//автоматическое категорирование
+void MainWindow::on_btFilter_clicked()
+{
+    if (ui->tableWidget->currentRow() < 0)
+        return;
+
+    if (filter->showDialog(m_Items.at(ui->tableWidget->currentRow()).name)) {
+
+    }
 }
