@@ -50,6 +50,10 @@ private slots:
 
     void on_btReconize_clicked();
 
+    void on_btClear_clicked();
+
+    void on_btClose_clicked();
+
 private:
     Ui::DialogScanReceipt *ui;
 
