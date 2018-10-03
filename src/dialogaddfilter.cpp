@@ -29,11 +29,20 @@ S_FILTER DialogAddFilter::getFilter() const
     return f;
 }
 
-void DialogAddFilter::setFilter(const S_FILTER fl)
+void DialogAddFilter::setFilter(const S_FILTER filter)
 {
-    ui->edFilter->setText(fl.text);
-    ui->edCategory->setText(fl.category);
-    ui->cbMode->setCurrentIndex(fl.type);
-    ui->cbNot->setChecked(fl.NOT);
-    ui->cbRegister->setChecked(fl.CaseSens);
+    ui->edFilter->setText(filter.text);
+    ui->edCategory->setText(filter.category);
+    ui->cbMode->setCurrentIndex(filter.type);
+    ui->cbNot->setChecked(filter.NOT);
+    ui->cbRegister->setChecked(filter.CaseSens);
+}
+
+void DialogAddFilter::updateFilter(const S_FILTER filter)
+{
+//    ui->edFilter->setText(fl.text);
+//    ui->edCategory->setText(fl.category);
+//    ui->cbMode->setCurrentIndex(fl.type);
+//    ui->cbNot->setChecked(fl.NOT);
+//    ui->cbRegister->setChecked(fl.CaseSens);
 }

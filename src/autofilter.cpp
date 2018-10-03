@@ -26,7 +26,15 @@ bool AutoFilter::showDialog(const QString name)
 
 void AutoFilter::addFilter(const S_FILTER filter)
 {
-    vector.append(filter);
+    bool found = false;
+    for (int i=0;i<vector.count(); i++) {
+        if (vector[i].category==filter.category && vector[i].text == filter.text) {
+            vector[i] = filter;
+            found = true;
+        }
+    }
+    if (!found)
+        vector.append(filter);
 }
 
 void AutoFilter::load()

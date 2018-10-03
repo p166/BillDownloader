@@ -28,7 +28,8 @@ public:
 public slots:
     void setName(const QString name);
     S_FILTER getFilter() const;
-    void setFilter(const S_FILTER fl);
+    void setFilter(const S_FILTER filter);
+    void updateFilter(const S_FILTER filter);
 
 private:
     Ui::DialogAddFilter *ui;
