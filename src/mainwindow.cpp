@@ -195,7 +195,7 @@ void MainWindow::on_btFilter_clicked()
 
     if (filter->showDialog(model_recepeits->vector.at(index).name)) {
         model_recepeits->vector[index].category = filter->getCategory();
-        qDebug() << model_recepeits->vector[index].category;
+//        qDebug() << model_recepeits->vector[index].category;
         model_recepeits->forceUpdate();
         updateCategoriesInTable();
     }

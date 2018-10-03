@@ -47,7 +47,7 @@ void AutoFilter::load()
     while (!xml.atEnd() && !xml.hasError())
     {
         QXmlStreamReader::TokenType token = xml.readNext();
-        qDebug() << xml.name();
+//        qDebug() << xml.name();
         if (token == QXmlStreamReader::StartDocument)
             continue;
         if (token == QXmlStreamReader::StartElement)
@@ -63,6 +63,7 @@ void AutoFilter::load()
                 if (attr.hasAttribute("type"))      fl.type = attr.value("type").toInt();
                 if (attr.hasAttribute("CaseSens"))  fl.CaseSens = attr.value("CaseSens").toInt();
                 if (attr.hasAttribute("NOT"))       fl.NOT = attr.value("NOT").toInt();
+                qDebug() << "load filter: " << fl.text << fl.category;
                 addFilter(fl);
                 xml.readNext();
             }
