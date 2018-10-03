@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-
     m_FakeDeviceID = m_Settings.value("User/DeviceID",QUuid::createUuid().toString()).toString();
     ui->lineEditUser->setText(m_Settings.value("User/Phone").toString());
     ui->lineEditPassword->setText(m_Settings.value("User/Password").toString());
@@ -43,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent) :
     progress = new DialogProgress(this);
     connect(&req_list, SIGNAL(req_total(int)), progress, SLOT(setTotal(int)));
     connect(&req_list, SIGNAL(req_reconized()), progress, SLOT(reconized()));
+    connect(&req_list, SIGNAL(req_finished()), this, SLOT(updateCategoriesInTable()));
 
     loadItems();
     loadCategories();
@@ -189,14 +189,24 @@ void MainWindow::on_btRequest_clicked()
 //автоматическое категорирование
 void MainWindow::on_btFilter_clicked()
 {
-//    const int index = ui->tableWidget->currentRow();
-//    if (index < 0)
-//        return;
+    const int index = ui->tableView->currentIndex().row();
+    if (index < 0)
+        return;
 
-//    if (filter->showDialog(m_Items.at(index).name)) {
-//        m_Items[index].category = filter->getCategory(m_Items.at(index).name);
-//        qDebug() << m_Items[index].category;
-////        for (int i=0;i<m_Items.count(); i++) {
-////        }
-//    }
+    if (filter->showDialog(model_recepeits->vector.at(index).name)) {
+        model_recepeits->vector[index].category = filter->getCategory();
+        qDebug() << model_recepeits->vector[index].category;
+        model_recepeits->forceUpdate();
+        updateCategoriesInTable();
+    }
+}
+
+void MainWindow::updateCategoriesInTable()
+{
+    for (int i=0;i<model_recepeits->vector.count(); i++) {
+        if (model_recepeits->vector[i].category.isEmpty()) {
+            model_recepeits->vector[i].category = filter->getCategory(model_recepeits->vector.at(i).name);
+        }
+    }
+    model_recepeits->forceUpdate();
 }

@@ -21,7 +21,8 @@ public:
 
 public slots:
     bool showDialog(const QString name);
-    QString getCategory(const QString text) const;
+    QString getCategory(const QString text);
+    QString getCategory() const;
     S_FILTER findFilter(const QString text);
 
     void load();

@@ -98,6 +98,9 @@ void RequestList::replyFinished(QNetworkReply *reply)
         qDebug() << "parseReceipt ok";
     }
     emit req_reconized();
+    if (getCountResult(NO_RECONIZE) == 0) {
+        emit req_finished();
+    }
     reply->deleteLater();
 }
 
@@ -191,7 +194,7 @@ bool RequestList::parseReceipt(QByteArray jsonText)
                                         item.price = sum.toDouble()/100.0;
                                         item.date = m_ReceiptDateTime;
                                         if (!item.date.isNull()) {
-                                            item.category = filter->getCategory(item.name);
+//                                            item.category = filter->getCategory(item.name);
                                         }
                                         model_recepeits->addRecepiet(item);
                                         qDebug() << "adding" << item.name << item.date.toString("yyyy-MM-ddTHH:mm:ss");

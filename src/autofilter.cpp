@@ -98,12 +98,14 @@ void AutoFilter::save()
     f.close();
 }
 
-QString AutoFilter::getCategory(const QString text) const
+QString AutoFilter::getCategory(const QString text)
 {
+    return findFilter(text).category;
+
     foreach (S_FILTER fl, vector) {
         switch (fl.type) {
         case FT_CONTAIN: {
-            if (text.indexOf(fl.text, fl.CaseSens?Qt::CaseSensitive:Qt::CaseInsensitive)!=-1) {
+            if (text.toLower().indexOf(fl.text.toLower(), fl.CaseSens?Qt::CaseSensitive:Qt::CaseInsensitive)!=-1) {
                 return fl.category;
             }
             break;
@@ -115,8 +117,13 @@ QString AutoFilter::getCategory(const QString text) const
         }
         }
     }
-
     return QString("");
+
+}
+
+QString AutoFilter::getCategory() const
+{
+    return ui_addfilter->getFilter().category;
 }
 
 S_FILTER AutoFilter::findFilter(const QString text)
@@ -130,7 +137,8 @@ S_FILTER AutoFilter::findFilter(const QString text)
     foreach (S_FILTER fl, vector) {
         switch (fl.type) {
         case FT_CONTAIN: {
-            if (text.indexOf(fl.text, fl.CaseSens?Qt::CaseSensitive:Qt::CaseInsensitive)!=-1) {
+            if (text.toLower().indexOf(fl.text.toLower(), Qt::CaseInsensitive) != -1) {
+//            if (text.indexOf(fl.text, fl.CaseSens?Qt::CaseSensitive:Qt::CaseInsensitive)!=-1) {
                 return fl;
             }
             break;

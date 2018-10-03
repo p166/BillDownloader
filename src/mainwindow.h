@@ -73,6 +73,7 @@ private slots:
     void on_btAbilityCashExport_clicked();
     void on_btRequest_clicked();
     void on_btFilter_clicked();
+    void updateCategoriesInTable();
 
 private:
     Ui::MainWindow *ui;
