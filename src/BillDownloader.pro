@@ -72,4 +72,5 @@ FORMS    += mainwindow.ui \
     dialogprogress.ui
 
 DISTFILES += \
-    categories.txt
+    categories.txt \
+    filters.xml
