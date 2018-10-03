@@ -26,6 +26,7 @@ S_FILTER DialogAddFilter::getFilter() const
     f.CaseSens = ui->cbRegister->isChecked();
     f.type = ui->cbMode->currentIndex();
     f.category = ui->edCategory->text();
+    f.valid = true;
     return f;
 }
 

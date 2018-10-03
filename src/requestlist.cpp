@@ -189,13 +189,9 @@ bool RequestList::parseReceipt(QByteArray jsonText)
                                     {
                                         mItem item;
                                         item.name = eName;
-//                                        item.category = filter->getCategory(item.name);
                                         item.count = quantity.toDouble();
                                         item.price = sum.toDouble()/100.0;
                                         item.date = m_ReceiptDateTime;
-                                        if (!item.date.isNull()) {
-//                                            item.category = filter->getCategory(item.name);
-                                        }
                                         model_recepeits->addRecepiet(item);
                                         qDebug() << "adding" << item.name << item.date.toString("yyyy-MM-ddTHH:mm:ss");
                                     }

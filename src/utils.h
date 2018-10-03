@@ -38,17 +38,18 @@ enum RECONIZE_RESULT {NO_RECONIZE, RECONIZE_PROGRESS, RECONIZE_OK, RECONIZE_ERR}
 
 //структура для модели
 struct mItem{
-    QDateTime date;
-    QString name;
-    QString category;
-    double count;
-    double price;
-    double sum;
+    QDateTime date;     //дата операции
+    QString name;       //название позиции
+    QString category;   //категория
+    bool filter;        //категория получена из фильтров
+    double count;       //количество
+    double price;       //цена
+    double sum;         //сумма, считается автоматом
     //---
-    QString FN;
-    QString FD;
-    QString FPD;
-    RECONIZE_RESULT result;
+    QString FN;             //данные из qr кода
+    QString FD;             //данные из qr кода
+    QString FPD;            //данные из qr кода
+    RECONIZE_RESULT result; //результат парсинга
 };
 
 inline char* generateGuid(char *guidStr)

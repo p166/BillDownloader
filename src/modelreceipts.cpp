@@ -46,6 +46,14 @@ QVariant ModelRecepeits::data(const QModelIndex &index, int role) const
         {
             if (vector.at(index.row()).date.isNull())
                 return QColor("lightgray");
+            if (index.column() == CL5_CATEGORY) {
+                if (vector.at(index.row()).category.isEmpty())
+                    return QColor("red");
+            }
+            if (index.column() == CL5_CATEGORY) {
+                if (vector.at(index.row()).filter)
+                    return QColor("lightblue");
+            }
             break;
         }
         case Qt::EditRole:

@@ -63,6 +63,7 @@ void AutoFilter::load()
                 if (attr.hasAttribute("type"))      fl.type = attr.value("type").toInt();
                 if (attr.hasAttribute("CaseSens"))  fl.CaseSens = attr.value("CaseSens").toInt();
                 if (attr.hasAttribute("NOT"))       fl.NOT = attr.value("NOT").toInt();
+                fl.valid = true;
                 qDebug() << "load filter: " << fl.text << fl.category;
                 addFilter(fl);
                 xml.readNext();
@@ -99,34 +100,19 @@ void AutoFilter::save()
     f.close();
 }
 
+//поиск категории в фильтрах
 QString AutoFilter::getCategory(const QString text)
 {
     return findFilter(text).category;
-
-    foreach (S_FILTER fl, vector) {
-        switch (fl.type) {
-        case FT_CONTAIN: {
-            if (text.toLower().indexOf(fl.text.toLower(), fl.CaseSens?Qt::CaseSensitive:Qt::CaseInsensitive)!=-1) {
-                return fl.category;
-            }
-            break;
-        }
-        case FT_EQUAL: {
-            if (text == fl.text)
-                return fl.category;
-            break;
-        }
-        }
-    }
-    return QString("");
-
 }
 
+//категория из интерфейса
 QString AutoFilter::getCategory() const
 {
     return ui_addfilter->getFilter().category;
 }
 
+//поиск фильтра
 S_FILTER AutoFilter::findFilter(const QString text)
 {
     S_FILTER fl;
@@ -135,6 +121,7 @@ S_FILTER AutoFilter::findFilter(const QString text)
     fl.NOT = false;
     fl.text.clear();
     fl.type = 0;
+    fl.valid = false;
     foreach (S_FILTER fl, vector) {
         switch (fl.type) {
         case FT_CONTAIN: {

@@ -195,7 +195,7 @@ void MainWindow::on_btFilter_clicked()
 
     if (filter->showDialog(model_recepeits->vector.at(index).name)) {
         model_recepeits->vector[index].category = filter->getCategory();
-//        qDebug() << model_recepeits->vector[index].category;
+        model_recepeits->vector[index].filter = true;
         model_recepeits->forceUpdate();
         updateCategoriesInTable();
     }
@@ -205,7 +205,9 @@ void MainWindow::updateCategoriesInTable()
 {
     for (int i=0;i<model_recepeits->vector.count(); i++) {
         if (model_recepeits->vector[i].category.isEmpty()) {
-            model_recepeits->vector[i].category = filter->getCategory(model_recepeits->vector.at(i).name);
+            S_FILTER f = filter->findFilter(model_recepeits->vector.at(i).name);
+            model_recepeits->vector[i].category = f.category;
+            model_recepeits->vector[i].filter   = f.valid;
         }
     }
     model_recepeits->forceUpdate();

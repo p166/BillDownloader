@@ -15,6 +15,7 @@ struct S_FILTER {
     int type;
     bool CaseSens;
     bool NOT;
+    bool valid;
 };
 
 class DialogAddFilter : public QDialog
