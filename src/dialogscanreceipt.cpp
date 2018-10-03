@@ -126,7 +126,7 @@ void DialogScanReceipt::on_imageAvailable(int , const QVideoFrame &buffer)
         m_Model.addData(fn,fd,fpd);
         if (ui->cbPacketImages->isChecked()) {
             //TODO: нужно добавить в таблицу распознанных
-            emit imageDecoded();
+//            emit imageDecoded();
             qApp->processEvents();
             QMessageBox::information(this, QString::fromUtf8("Код распознан"),
                                            QString::fromUtf8("Код с камеры успешно распознан, \n нажмите ОК и покажите следующий чек."),
@@ -184,4 +184,15 @@ void DialogScanReceipt::setIsPacketImages(bool value)
 void DialogScanReceipt::on_btReconize_clicked()
 {
     accept();
+}
+
+void DialogScanReceipt::on_btClear_clicked()
+{
+    m_Model.vector.clear();
+    m_Model.forceUpdate();
+}
+
+void DialogScanReceipt::on_btClose_clicked()
+{
+    reject();
 }

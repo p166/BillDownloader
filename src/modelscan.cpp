@@ -28,7 +28,7 @@ QVariant ModelScan::data(const QModelIndex &index, int role) const
     switch (role) {
         case Qt::DisplayRole:
         {
-            const RECONIZE_ITEM item = vector.at(index.row());
+            const mItem item = vector.at(index.row());
             if (index.column() == 0)    return item.FD;
             if (index.column() == 1)    return item.FN;
             if (index.column() == 2)    return item.FPD;
@@ -76,7 +76,7 @@ QVariant ModelScan::headerData(int section, Qt::Orientation orientation, int rol
 
 void ModelScan::addData(const QString FN, const QString FD, const QString FPD)
 {
-    RECONIZE_ITEM item;
+    mItem item;
     item.FD = FD;
     item.FN = FN;
     item.FPD = FPD;
@@ -92,5 +92,10 @@ void ModelScan::addData(const QString FN, const QString FD, const QString FPD)
 void ModelScan::reconized(const int index, const RECONIZE_RESULT result)
 {
     vector[index].result = result;
+}
+
+void ModelScan::forceUpdate()
+{
+    emit layoutChanged();
 }
 

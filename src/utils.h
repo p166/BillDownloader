@@ -9,6 +9,8 @@
 #include "QString"
 #include <QDateTime>
 
+enum COLUMNS {COL_DATE, COL_NAME, COL_SHOT_NAME, COL_COUNT_IN, COL_COUNT, COL_EDIZM, COL_COST, COL_CATEGOTRY, COL_SUM_COUNT, COL_GAR, COL_TYPE_GAR};
+
 enum eWarrantyType{
     NONE = 0,
     DAYS,
@@ -30,6 +32,24 @@ struct sItem{
     QString getTotalCount(){
         return QString("%1 %2").arg(QString::number(count*countFactor)).arg(countType);
     }
+};
+
+enum RECONIZE_RESULT {NO_RECONIZE, RECONIZE_PROGRESS, RECONIZE_OK, RECONIZE_ERR};
+
+//структура для модели
+struct mItem{
+    QDateTime date;     //дата операции
+    QString name;       //название позиции
+    QString category;   //категория
+    bool filter;        //категория получена из фильтров
+    double count;       //количество
+    double price;       //цена
+    double sum;         //сумма, считается автоматом
+    //---
+    QString FN;             //данные из qr кода
+    QString FD;             //данные из qr кода
+    QString FPD;            //данные из qr кода
+    RECONIZE_RESULT result; //результат парсинга
 };
 
 inline char* generateGuid(char *guidStr)
