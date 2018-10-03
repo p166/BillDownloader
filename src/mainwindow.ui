@@ -115,7 +115,11 @@
      </layout>
     </item>
     <item row="2" column="0">
-     <widget class="QTableWidget" name="tableWidget"/>
+     <widget class="QTableView" name="tableView">
+      <attribute name="horizontalHeaderStretchLastSection">
+       <bool>true</bool>
+      </attribute>
+     </widget>
     </item>
    </layout>
   </widget>
