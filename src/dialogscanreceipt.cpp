@@ -196,3 +196,8 @@ void DialogScanReceipt::on_btClose_clicked()
 {
     reject();
 }
+
+void DialogScanReceipt::on_btClearErrors_clicked()
+{
+    m_Model.clearErrors();
+}

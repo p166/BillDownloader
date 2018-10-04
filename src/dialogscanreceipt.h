@@ -46,13 +46,10 @@ private slots:
     void on_imageAvailable(int, const QVideoFrame &buffer);
     void on_readyForCaptureChanged(bool);
     void on_pushButtonManualInput_clicked();
-
-
     void on_btReconize_clicked();
-
     void on_btClear_clicked();
-
     void on_btClose_clicked();
+    void on_btClearErrors_clicked();
 
 private:
     Ui::DialogScanReceipt *ui;

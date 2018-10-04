@@ -40,14 +40,14 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="5" colspan="2">
+     <item row="1" column="5" colspan="3">
       <widget class="QLineEdit" name="lineEdit_fpd">
        <property name="text">
         <string>1754630584</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="2" colspan="5">
+     <item row="0" column="2" colspan="6">
       <widget class="QComboBox" name="comboBox"/>
      </item>
      <item row="1" column="1">
@@ -105,7 +105,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="5" colspan="2">
+     <item row="3" column="5" colspan="3">
       <layout class="QHBoxLayout" name="horizontalLayout_7">
        <item>
         <widget class="QTableView" name="tableView">
@@ -131,7 +131,7 @@
        </item>
       </layout>
      </item>
-     <item row="2" column="6">
+     <item row="2" column="7">
       <widget class="QPushButton" name="btReconize">
        <property name="text">
         <string>Reconize list</string>
@@ -141,14 +141,21 @@
      <item row="4" column="5">
       <widget class="QPushButton" name="btClear">
        <property name="text">
-        <string>Clear</string>
+        <string>Clear table</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="6">
+     <item row="4" column="7">
       <widget class="QPushButton" name="btClose">
        <property name="text">
         <string>Close</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="6">
+      <widget class="QPushButton" name="btClearErrors">
+       <property name="text">
+        <string>Clear errors</string>
        </property>
       </widget>
      </item>

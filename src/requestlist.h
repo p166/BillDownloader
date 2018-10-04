@@ -32,7 +32,7 @@ public:
 
 signals:
     void req_total(int count);
-    void req_reconized();
+    void req_reconized(bool result);
     void req_finished();
 
 public slots:

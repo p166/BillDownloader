@@ -99,3 +99,12 @@ void ModelScan::forceUpdate()
     emit layoutChanged();
 }
 
+void ModelScan::clearErrors()
+{
+    for (int i=0; i<vector.count(); i++) {
+        if (vector[i].result == RECONIZE_ERR) {
+            vector[i].result = NO_RECONIZE;
+        }
+    }
+    forceUpdate();
+}

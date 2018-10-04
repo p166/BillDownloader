@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     progress = new DialogProgress(this);
     connect(&req_list, SIGNAL(req_total(int)), progress, SLOT(setTotal(int)));
-    connect(&req_list, SIGNAL(req_reconized()), progress, SLOT(reconized()));
+    connect(&req_list, SIGNAL(req_reconized(bool)), progress, SLOT(reconized(bool)));
     connect(&req_list, SIGNAL(req_finished()), this, SLOT(updateCategoriesInTable()));
 
     loadItems();

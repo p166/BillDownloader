@@ -96,8 +96,10 @@ void RequestList::replyFinished(QNetworkReply *reply)
 
     if (parseReceipt(response)){
         qDebug() << "parseReceipt ok";
+        emit req_reconized(true);
+    } else {
+        emit req_reconized(false);
     }
-    emit req_reconized();
     if (getCountResult(NO_RECONIZE) == 0) {
         emit req_finished();
     }

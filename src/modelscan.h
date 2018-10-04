@@ -35,6 +35,7 @@ public slots:
     void addData(const QString FN, const QString FD, const QString FPD);
     void reconized(const int index, const RECONIZE_RESULT result);
     void forceUpdate();
+    void clearErrors();
 
 signals:
     void added();
