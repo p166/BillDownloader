@@ -98,6 +98,8 @@ void RequestList::replyFinished(QNetworkReply *reply)
         qDebug() << "parseReceipt ok";
         emit req_reconized(true);
     } else {
+        qDebug() << "parseReceipt fail";
+        qDebug() << QString(response);
         emit req_reconized(false);
     }
     if (getCountResult(NO_RECONIZE) == 0) {
@@ -113,6 +115,9 @@ void RequestList::sendRequest(const int index)
 
 void RequestList::sendRequest(const QString fn, const QString fd, const QString fpd)
 {
+//    curl -H 'Authorization: Basic ПАРОЛЬ' -H 'Device-Id: ANDROID_ID' -H 'Device-OS: Adnroid 6.0.1' -H 'Version: 2'
+//    -H 'ClientVersion: 1.4.2' -H 'Host: proverkacheka.nalog.ru:8888' -H 'User-Agent: okhttp/3.0.1' --compressed
+//    'http://proverkacheka.nalog.ru:8888/v1/inns/*/kkts/*/fss/ФН/tickets/ФП?fiscalSign=ФПД&sendToEmail=no
     QUrl url("https://proverkacheka.nalog.ru:9999/v1/inns/*/kkts/*/fss/"+fn+"/tickets/"+fd);
 
     QUrlQuery query;
@@ -126,7 +131,7 @@ void RequestList::sendRequest(const QString fn, const QString fd, const QString 
     request.setRawHeader("Device-Id", m_FakeDeviceID.toUtf8());
     request.setRawHeader("Device-OS", "Adnroid 5.1");
     request.setRawHeader("Version", "2");
-    request.setRawHeader("ClientVersion", "1.4.4.1");
+    request.setRawHeader("ClientVersion", "1.4.4.4");
 
     nam.get(request);
 }

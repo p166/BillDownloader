@@ -64,7 +64,7 @@ void AutoFilter::load()
                 if (attr.hasAttribute("CaseSens"))  fl.CaseSens = attr.value("CaseSens").toInt();
                 if (attr.hasAttribute("NOT"))       fl.NOT = attr.value("NOT").toInt();
                 fl.valid = true;
-                qDebug() << "load filter: " << fl.text << fl.category;
+//                qDebug() << "load filter: " << fl.text << fl.category;
                 addFilter(fl);
                 xml.readNext();
             }

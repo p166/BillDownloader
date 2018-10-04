@@ -44,8 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&req_list, SIGNAL(req_reconized(bool)), progress, SLOT(reconized(bool)));
     connect(&req_list, SIGNAL(req_finished()), this, SLOT(updateCategoriesInTable()));
 
-    loadItems();
-    loadCategories();
+//    loadItems();
+//    loadCategories();
 }
 
 MainWindow::~MainWindow()
