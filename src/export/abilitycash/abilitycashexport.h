@@ -17,7 +17,7 @@
 class AbilityCashExport
 {
 public:
-    AbilityCashExport(QVector<sItem> *items);
+    AbilityCashExport(QVector<mItem> *items);
 
     bool export_xml(const QString filename="");
 
@@ -29,7 +29,7 @@ private:
     AC_currencies       ac_currencies;
     AC_classifiers      ac_classifiers;
     AC_transactions     ac_transactions;
-    QVector<sItem> *items;
+    QVector<mItem> *items;
 };
 
 #endif // ABILITYCASHEXPORT_H

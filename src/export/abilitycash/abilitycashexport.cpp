@@ -1,6 +1,6 @@
 #include "abilitycashexport.h"
 
-AbilityCashExport::AbilityCashExport(QVector<sItem> *items)
+AbilityCashExport::AbilityCashExport(QVector<mItem> *items)
 {
     this->items = items;
     qDebug() << "Count export:" << items->count();

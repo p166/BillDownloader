@@ -11,10 +11,10 @@ class AC_classifiers
 {
 public:
     AC_classifiers();
-    void write(QXmlStreamWriter *xml, QVector<sItem> *items);
+    void write(QXmlStreamWriter *xml, QVector<mItem> *items);
 
 private:
-    QVector<sItem> *items;
+    QVector<mItem> *items;
 
     void write_expense_tree(QXmlStreamWriter *xml);
 

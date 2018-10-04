@@ -10,12 +10,12 @@ class AC_transactions
 {
 public:
     AC_transactions();
-    void write(QXmlStreamWriter *xml, QVector<sItem> *items);
+    void write(QXmlStreamWriter *xml, QVector<mItem> *items);
 
 private:
-    QVector<sItem> *items;
+    QVector<mItem> *items;
 
-    void write_transaction(QXmlStreamWriter *xml, sItem it);
+    void write_transaction(QXmlStreamWriter *xml, mItem it);
     void write_categories(QXmlStreamWriter *xml, QStringList category);
 };
 

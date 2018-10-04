@@ -32,7 +32,7 @@ AC_classifiers::AC_classifiers()
 //</classifiers>
 
 
-void AC_classifiers::write(QXmlStreamWriter *xml, QVector<sItem> *items)
+void AC_classifiers::write(QXmlStreamWriter *xml, QVector<mItem> *items)
 {
     this->items = items;
     xml->writeStartElement("classifiers");

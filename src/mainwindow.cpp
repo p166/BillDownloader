@@ -174,7 +174,7 @@ void MainWindow::on_btClearTable_clicked()
 //TODO: экспорт для программы AbilityCash в формате xml
 void MainWindow::on_btAbilityCashExport_clicked()
 {
-    AbilityCashExport e(&m_Items);
+    AbilityCashExport e(&model_recepeits->vector);
     e.export_xml("./ability_cash.xml");
     QMessageBox::information(0,tr("Экспорт завершен"),tr("Экспорт в формат AbilityCach завершен!"));
 }
