@@ -11,6 +11,7 @@
 #include "ac_currencies.h"
 #include "ac_classifiers.h"
 #include "ac_transactions.h"
+#include "ac_reconized_bills.h"
 
 #include "utils.h"
 
@@ -29,6 +30,7 @@ private:
     AC_currencies       ac_currencies;
     AC_classifiers      ac_classifiers;
     AC_transactions     ac_transactions;
+    AC_reconized_bills  ac_reconized_bills;
     QVector<mItem> *items;
 };
 

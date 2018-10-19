@@ -32,7 +32,14 @@ QVariant ModelScan::data(const QModelIndex &index, int role) const
             if (index.column() == 0)    return item.FD;
             if (index.column() == 1)    return item.FN;
             if (index.column() == 2)    return item.FPD;
-            if (index.column() == 3)    return item.result;
+            if (index.column() == 3)    {
+                switch (item.result) {
+                case NO_RECONIZE:       return "NO_RECONIZE";
+                case RECONIZE_PROGRESS: return "RECONIZE_PROGRESS";
+                case RECONIZE_OK:       return "RECONIZE_OK";
+                case RECONIZE_ERR:      return "RECONIZE_ERR";
+                }
+            }
         }
         break;
         case Qt::BackgroundColorRole:
@@ -74,15 +81,16 @@ QVariant ModelScan::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
-void ModelScan::addData(const QString FN, const QString FD, const QString FPD)
+void ModelScan::addData(const QString FN, const QString FD, const QString FPD, QImage img, RECONIZE_RESULT result)
 {
     mItem item;
     item.FD = FD;
     item.FN = FN;
     item.FPD = FPD;
-    item.result = NO_RECONIZE;
+    item.result = result;
+    item.img = img;
     vector.append(item);
-    qDebug() << FN << FD << FPD << vector.count();
+    qDebug() << "FN" << FN << "FD" << FD << "FPD" << FPD << vector.count();
 
     this->layoutChanged();
 
@@ -107,4 +115,13 @@ void ModelScan::clearErrors()
         }
     }
     forceUpdate();
+}
+
+void ModelScan::findFPD(mItem &item)
+{
+    foreach (mItem it, vector) {
+        if (it.FD == item.FD)
+            if (it.FN == item.FN)
+                item.FPD = it.FPD;
+    }
 }

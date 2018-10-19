@@ -2,6 +2,28 @@
 #include "ui_dialogscanreceipt.h"
 #include <QDebug>
 
+DialogScanReceipt::DialogScanReceipt(QWidget *parent) :
+    QDialog(parent),
+    m_Camera(nullptr),
+    m_CaptureImage(nullptr),
+    m_Model(nullptr),
+    ui(new Ui::DialogScanReceipt)
+{
+    ui->setupUi(this);
+
+    m_Decoder.setDecoder(QZXing::DecoderFormat_QR_CODE);
+    ui->tableView->setModel(&m_Model);
+    ui->tableView->horizontalHeader()->setStretchLastSection(true);
+
+    ui->splitter->setStretchFactor(0,2);
+    ui->splitter->setStretchFactor(1,3);
+
+    QSettings s;
+    ui->splitter->restoreState(s.value("splitter").toByteArray());
+
+    fillCamerasList();
+}
+
 void DialogScanReceipt::fillCamerasList()
 {
     int prev = ui->comboBox->currentIndex();
@@ -16,23 +38,11 @@ void DialogScanReceipt::fillCamerasList()
 
 }
 
-DialogScanReceipt::DialogScanReceipt(QWidget *parent) :
-    QDialog(parent),
-    m_Camera(nullptr),
-    m_CaptureImage(nullptr),
-    m_Model(nullptr),
-    ui(new Ui::DialogScanReceipt)
-{
-    ui->setupUi(this);
-
-    m_Decoder.setDecoder( QZXing::DecoderFormat_QR_CODE );
-    ui->tableView->setModel(&m_Model);
-
-    fillCamerasList();
-}
-
 DialogScanReceipt::~DialogScanReceipt()
 {
+    QSettings s;
+    s.setValue("splitter", ui->splitter->saveState());
+
     delete m_Camera;
     delete ui;
 }
@@ -89,14 +99,13 @@ void DialogScanReceipt::on_comboBox_currentIndexChanged(int index)
 
 void DialogScanReceipt::on_imageAvailable(int , const QVideoFrame &buffer)
 {
-
     if (!isVisible())
         return;
+
     QImage img;
     QVideoFrame frame(buffer);  // make a copy we can call map (non-const) on
     frame.map(QAbstractVideoBuffer::ReadOnly);
-    QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(
-                frame.pixelFormat());
+    QImage::Format imageFormat = QVideoFrame::imageFormatFromPixelFormat(frame.pixelFormat());
     // BUT the frame.pixelFormat() is QVideoFrame::Format_Jpeg, and this is
     // mapped to QImage::Format_Invalid by
     // QVideoFrame::imageFormatFromPixelFormat
@@ -112,32 +121,123 @@ void DialogScanReceipt::on_imageAvailable(int , const QVideoFrame &buffer)
         img = QImage::fromData(frame.bits(), nbytes);
     }
     frame.unmap();
+    decodeImage(img, true);
+}
+
+QImage DialogScanReceipt::applyEffectToImage(QImage &src, QGraphicsEffect *effect, int extent)
+{
+    if(src.isNull()) return QImage();
+    if(!effect) return src;
+    QGraphicsScene scene;
+    QGraphicsPixmapItem item;
+    item.setPixmap(QPixmap::fromImage(src));
+    item.setGraphicsEffect(effect);
+    scene.addItem(&item);
+    QImage res(src.size()+QSize(extent*2, extent*2), QImage::Format_ARGB32);
+    res.fill(Qt::transparent);
+    QPainter ptr(&res);
+    scene.render(&ptr, QRectF(), QRectF( -extent, -extent, src.width()+extent*2, src.height()+extent*2));
+    return res;
+}
+
+
+bool DialogScanReceipt::refineImage(const QImage &source, QImage &out)
+{
+//    (const char *) source.bits(), qint64(source.bytesPerLine()) * source.height());
+//    out.loadFromData();
+}
+
+QImage DialogScanReceipt::brightnessImage(const QImage &src, int n)
+{
+    QImage img = QImage(src);
+    qint32 h = img.height();
+    qint32 w = img.width();
+
+    for (qint32 y = 0; y<h; ++y) {
+        QRgb *line = reinterpret_cast<QRgb*>(img.scanLine(y));
+
+        for (qint32 x=0; x<w; ++x) {
+            int r = qRed(*line) + n;
+            int g = qGreen(*line) + n;
+            int b = qBlue(*line) + n;
+            int a = qAlpha(*line);
+
+            *line++ = qRgba(
+                        r>255?255:r<0?0:r,
+                        g>255?255:g<0?0:g,
+                        b>255?255:b<0?0:b,
+                        a
+                        );
+        }
+    }
+    return img;
+}
+
+void DialogScanReceipt::decodeImage(const QImage &source, const bool fromCamera)
+{
+    if (fromCamera && camera_stop)
+        return;
+
+    QImage img(source);
+
+    {
+//        img = brightnessImage(img, 70);
+    }
+
+    if (ui->cbBlur->isChecked()) {
+//        QGraphicsBlurEffect *blur = new QGraphicsBlurEffect(this);
+//        blur->setBlurRadius((qreal)ui->slBlurRadius->value()/10.0);
+//        img = applyEffectToImage(img, blur);
+    }
+
+    if (ui->cbRefineImages->isChecked()) {
+//        QImage refineImg;
+//        if (refineImage(img, refineImg)) {
+//            img = refineImg;
+//        }
+    }
+
+//    QTransform rotating;
+//    rotating.rotate(5);
+//    img = img.transformed(rotating);
 
     ui->widget->setImage(img);
-    QString data = m_Decoder.decodeImage(img);
+
+    const QString data = m_Decoder.decodeImage(img, img.width(), img.height(), true);
     if (!data.isEmpty()){
+        qDebug() << data;
         QUrlQuery query(data);
         QString fn = query.queryItemValue("fn");
         QString fd = query.queryItemValue("i");
         QString fpd = query.queryItemValue("fp");
+        while (fd.length()<10)
+            fd.insert(0, "0");
+
         ui->lineEdit_fn->setText(fn);
         ui->lineEdit_fd->setText(fd);
         ui->lineEdit_fpd->setText(fpd);
-        m_Model.addData(fn,fd,fpd);
         if (ui->cbPacketImages->isChecked()) {
-            //TODO: нужно добавить в таблицу распознанных
-//            emit imageDecoded();
+            m_Model.addData(fn,fd,fpd,img);
             qApp->processEvents();
-            QMessageBox::information(this, QString::fromUtf8("Код распознан"),
-                                           QString::fromUtf8("Код с камеры успешно распознан, \n нажмите ОК и покажите следующий чек."),
-                                           QMessageBox::Ok);
+            if (fromCamera) {
+                QMessageBox::information(this, QString::fromUtf8("Код распознан"),
+                                               QString::fromUtf8("Код с камеры успешно распознан, \n нажмите ОК и покажите следующий чек."),
+                                               QMessageBox::Ok);
+            }
         } else {
             on_pushButtonManualInput_clicked();
         }
+    } else {
+        if (!fromCamera) {
+            qDebug() << "Wrong decode image!";
+            m_Model.addData("", "", "", img, RECONIZE_ERR);
+        }
     }
 
-
-    m_CaptureImage->capture("img.jpg");
+    if (fromCamera) {
+        m_CaptureImage->capture("img.jpg");
+    }
+    qApp->processEvents();
 }
 
 void DialogScanReceipt::on_readyForCaptureChanged(bool)
@@ -200,4 +300,46 @@ void DialogScanReceipt::on_btClose_clicked()
 void DialogScanReceipt::on_btClearErrors_clicked()
 {
     m_Model.clearErrors();
+}
+
+void DialogScanReceipt::on_slBlurRadius_valueChanged(int value)
+{
+    ui->lbBlurCaption->setText(QString("%1 px").arg((qreal)value/10.0));
+}
+
+void DialogScanReceipt::on_btOpen_clicked()
+{
+    QStringList files = QFileDialog::getOpenFileNames(this, "Open jpg files:", "./", "*.jpg");
+
+    foreach (QString file, files) {
+        qDebug() << file;
+        decodeImage(QImage(file, "jpg"), false);
+        qApp->processEvents();
+    }
+
+    if (files.count()>0) {
+//        m_Settings.setValue("loadPath", QDir::absoluteFilePath(files.at(0)));
+    }
+
+}
+
+void DialogScanReceipt::on_tableView_clicked(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+
+    mItem item = m_Model.vector.at(index.row());
+    QImage img = QImage(item.img);
+    if (img.isNull())
+        return;
+
+    qDebug() << "setImage";
+    ui->widget->setImage(img);
+}
+
+void DialogScanReceipt::on_btStopCamera_clicked()
+{
+    camera_stop = camera_stop?false:true;
+    ui->btStopCamera->setText(camera_stop?"Start":"Stop");
+    qDebug() << "camera_stop" << camera_stop;
 }

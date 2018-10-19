@@ -1,6 +1,6 @@
-#include "requestlist.h"
+#include "requestmanager.h"
 
-RequestList::RequestList(QObject *parent) : QObject(parent)
+RequestManager::RequestManager(QObject *parent) : QObject(parent)
 {
     connect(&nam, SIGNAL(finished(QNetworkReply*)), this, SLOT(replyFinished(QNetworkReply*)));
 
@@ -15,7 +15,7 @@ QString base64(QString data)
     return text.toBase64();
 }
 
-int RequestList::getCountResult(const RECONIZE_RESULT result)
+int RequestManager::getCountResult(const RECONIZE_RESULT result)
 {
     int res = 0;
     for (int i=0; i<model_scan->vector.count(); i++) {
@@ -26,7 +26,7 @@ int RequestList::getCountResult(const RECONIZE_RESULT result)
     return res;
 }
 
-void RequestList::run()
+void RequestManager::run()
 {
     int total = getCountResult(NO_RECONIZE);
     if (total>0) {
@@ -35,7 +35,7 @@ void RequestList::run()
     }
 }
 
-bool RequestList::beginRequest()
+bool RequestManager::beginRequest()
 {
     for (int i=0; i<model_scan->vector.count(); i++) {
         if (model_scan->vector.at(i).result == NO_RECONIZE) {
@@ -50,7 +50,7 @@ bool RequestList::beginRequest()
 }
 
 //получаем индекс активного запроса
-int RequestList::getIndexInProgress()
+int RequestManager::getIndexInProgress()
 {
     for (int i=0; i<model_scan->vector.count(); i++) {
         if (model_scan->vector.at(i).result == RECONIZE_PROGRESS) {
@@ -60,7 +60,7 @@ int RequestList::getIndexInProgress()
     return -1;
 }
 
-void RequestList::timerRequest()
+void RequestManager::timerRequest()
 {
     const int current = getIndexInProgress();
     if (current == -1) {
@@ -70,7 +70,7 @@ void RequestList::timerRequest()
     }
 }
 
-void RequestList::setAuth(const QString user, const QString pass, const QString m_FakeDeviceID)
+void RequestManager::setAuth(const QString user, const QString pass, const QString m_FakeDeviceID)
 {
     this->user = user;
     this->pass = pass;
@@ -78,21 +78,17 @@ void RequestList::setAuth(const QString user, const QString pass, const QString 
 }
 
 //установка итоговой модели и модели с распознанными qr
-void RequestList::setModels(ModelRecepeits *model_recepeits, ModelScan *model_scan)
+void RequestManager::setModels(ModelRecepeits *model_recepeits, ModelScan *model_scan)
 {
     this->model_recepeits = model_recepeits;
     this->model_scan = model_scan;
 }
 
-//void RequestList::setAutoFilter(AutoFilter *filter)
-//{
-//    this->filter = filter;
-//}
-
-void RequestList::replyFinished(QNetworkReply *reply)
+void RequestManager::replyFinished(QNetworkReply *reply)
 {
     QByteArray response = reply->readAll();
     qDebug() << "response received";
+//    qDebug() << QString(response);
 
     if (parseReceipt(response)){
         qDebug() << "parseReceipt ok";
@@ -108,12 +104,12 @@ void RequestList::replyFinished(QNetworkReply *reply)
     reply->deleteLater();
 }
 
-void RequestList::sendRequest(const int index)
+void RequestManager::sendRequest(const int index)
 {
     sendRequest(model_scan->vector.at(index).FN, model_scan->vector.at(index).FD, model_scan->vector.at(index).FPD);
 }
 
-void RequestList::sendRequest(const QString fn, const QString fd, const QString fpd)
+void RequestManager::sendRequest(const QString fn, const QString fd, const QString fpd)
 {
 //    curl -H 'Authorization: Basic ПАРОЛЬ' -H 'Device-Id: ANDROID_ID' -H 'Device-OS: Adnroid 6.0.1' -H 'Version: 2'
 //    -H 'ClientVersion: 1.4.2' -H 'Host: proverkacheka.nalog.ru:8888' -H 'User-Agent: okhttp/3.0.1' --compressed
@@ -136,7 +132,7 @@ void RequestList::sendRequest(const QString fn, const QString fd, const QString 
     nam.get(request);
 }
 
-bool RequestList::parseReceipt(QByteArray jsonText)
+bool RequestManager::parseReceipt(QByteArray jsonText)
 {
     //document
         //receipt
@@ -175,11 +171,20 @@ bool RequestList::parseReceipt(QByteArray jsonText)
                             QJsonValue user = receipt.value("user");
                             QJsonValue addr = receipt.value("retailPlaceAddress");
                             QJsonValue totalSum = receipt.value("totalSum");
+                            QJsonValue FPD = QString("%1").arg(receipt.value("fiscalSign").toInt());    //int
+                            QJsonValue FD  = QString("%1").arg(receipt.value("fiscalDocumentNumber").toInt());  //double
+                            QJsonValue FN  = receipt.value("fiscalDriveNumber").toString();//string
+
                             mItem item;
                             item.name = QString("%1 [%2]").arg(user.toString()).arg(addr.toString());
                             item.count = 0;
                             item.price = 0;
+                            item.FD  = FD.toString();
+                            while (item.FD.length()<10)
+                                item.FD.insert(0,"0");
+                            item.FN  = FN.toString();
                             item.sum = totalSum.toDouble()/100.0;
+                            model_scan->findFPD(item);
                             model_recepeits->addRecepiet(item);
                         }
 
@@ -200,7 +205,6 @@ bool RequestList::parseReceipt(QByteArray jsonText)
                                         item.price = sum.toDouble()/100.0;
                                         item.date = m_ReceiptDateTime;
                                         model_recepeits->addRecepiet(item);
-                                        qDebug() << "adding" << item.name << item.date.toString("yyyy-MM-ddTHH:mm:ss");
                                     }
                                 }
                             }
@@ -219,10 +223,10 @@ bool RequestList::parseReceipt(QByteArray jsonText)
         }
     }
     else{
-        qWarning() << "not json";
 
         const int current = getIndexInProgress();
         if (current!=-1) {
+            qWarning() << "not json" << "FD" << model_scan->vector[current].FD << "FN" << model_scan->vector[current].FN << "FPD" << model_scan->vector[current].FPD;
             model_scan->vector[current].result = RECONIZE_ERR;
             model_scan->forceUpdate();
         }

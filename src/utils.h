@@ -7,6 +7,7 @@
 #include <stdlib.h>
 
 #include "QString"
+#include <QImage>
 #include <QDateTime>
 
 enum COLUMNS {COL_DATE, COL_NAME, COL_SHOT_NAME, COL_COUNT_IN, COL_COUNT, COL_EDIZM, COL_COST, COL_CATEGOTRY, COL_SUM_COUNT, COL_GAR, COL_TYPE_GAR};
@@ -34,7 +35,7 @@ struct sItem{
     }
 };
 
-enum RECONIZE_RESULT {NO_RECONIZE, RECONIZE_PROGRESS, RECONIZE_OK, RECONIZE_ERR};
+enum RECONIZE_RESULT {NO_RECONIZE, RECONIZE_PROGRESS, RECONIZE_OK, RECONIZE_ERR, RECONIZE_ERR_NOQR};
 
 //структура для модели
 struct mItem{
@@ -50,6 +51,7 @@ struct mItem{
     QString FD;             //данные из qr кода
     QString FPD;            //данные из qr кода
     RECONIZE_RESULT result; //результат парсинга
+    QImage img;
 };
 
 inline char* generateGuid(char *guidStr)

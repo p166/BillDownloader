@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QImage>
+#include <QDebug>
 
 class cwImage: public QWidget
 {
@@ -18,6 +19,7 @@ public:
         m_Image = image;
         update();
     }
+    QImage getImage() { return m_Image; }
 };
 
 #endif // CWIMAGE_H

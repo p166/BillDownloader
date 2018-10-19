@@ -1,5 +1,6 @@
 #include "autofilter.h"
 
+//TODO: depricated
 AutoFilter::AutoFilter()
 {
     ui_addfilter = new DialogAddFilter();

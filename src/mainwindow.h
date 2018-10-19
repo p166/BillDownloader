@@ -8,13 +8,18 @@
 #include "cnetclient.h"
 #include <QNetworkAccessManager>
 #include <QCompleter>
+#include <QBitmap>
+#include <QFileDialog>
 
 #include "export/abilitycash/abilitycashexport.h"
 #include "utils.h"
 #include "autofilter.h"
 #include "modelreceipts.h"
-#include "requestlist.h"
+#include "requestmanager.h"
 #include "dialogprogress.h"
+#include "dialogfilters.h"
+#include "categoriessingleton.h"
+#include "delegate_lineedit.h"
 
 
 
@@ -27,9 +32,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 private:
-
-
-
 
     struct sSavedItem{
         QString name;
@@ -57,10 +59,6 @@ private:
     QString             m_FakeDeviceID;
 
 private:
-    void loadItems();
-    void saveItems();
-    void loadCategories();
-    void saveCategories();
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -68,19 +66,28 @@ public:
 
 public slots:
 
+    void retry_reconize();
 private slots:
     void on_btClearTable_clicked();
     void on_btAbilityCashExport_clicked();
     void on_btRequest_clicked();
     void on_btFilter_clicked();
+    void on_btShowFilters_clicked();
+    void on_btShowCategories_clicked();
+    void on_lineEditUser_textChanged(const QString &arg1);
     void updateCategoriesInTable();
+
+    void on_lineEditPassword_textChanged(const QString &arg1);
 
 private:
     Ui::MainWindow *ui;
-    AutoFilter *filter;
+    AutoFilter *wn_filter;
+    DialogFilters *wn_filters;
     ModelRecepeits *model_recepeits;
-    RequestList req_list;
-    DialogProgress *progress;
+    RequestManager req_manager;
+    DialogProgress *wn_progress;
+    CategoriesSingleton *categories;
+    LineEditDelegate *delegate_lineedit;
 };
 
 #endif // MAINWINDOW_H

@@ -236,8 +236,9 @@ QString QZXing::decodeImageFromFile(const QString& imageFilePath, int maxWidth, 
     // used to have a check if this image exists
     // but was removed because if the image file path doesn't point to a valid image
     // then the QImage::isNull will return true and the decoding will fail eitherway.
-    QUrl imageUrl(imageFilePath);
-    QImage tmpImage = QImage(imageUrl.toLocalFile());
+//    QUrl imageUrl(imageFilePath);
+//    QImage tmpImage = QImage(imageUrl.toLocalFile());
+    QImage tmpImage = QImage(imageFilePath);
     return decodeImage(tmpImage, maxWidth, maxHeight, smoothTransformation);
 }
 

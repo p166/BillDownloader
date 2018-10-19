@@ -18,6 +18,7 @@ class AutoFilter : QWidget
 public:
     AutoFilter();
     ~AutoFilter();
+    QVector <S_FILTER> vector;
 
 public slots:
     bool showDialog(const QString name);
@@ -33,7 +34,6 @@ private slots:
 
 private:
     DialogAddFilter *ui_addfilter;
-    QVector <S_FILTER> vector;
 
 };
 

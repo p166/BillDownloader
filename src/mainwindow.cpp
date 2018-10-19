@@ -16,6 +16,9 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    categories = CategoriesSingleton::getInstance();
+    categories->load();
+
     m_FakeDeviceID = m_Settings.value("User/DeviceID",QUuid::createUuid().toString()).toString();
     ui->lineEditUser->setText(m_Settings.value("User/Phone").toString());
     ui->lineEditPassword->setText(m_Settings.value("User/Password").toString());
@@ -25,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     qDebug() << "login:" << ui->lineEditUser->text();
     qDebug() << "pass:" << ui->lineEditPassword->text();
 
-    filter = new AutoFilter();
+    wn_filter = new AutoFilter();
 
     model_recepeits = new ModelRecepeits(this);
     ui->tableView->setModel(model_recepeits);
@@ -35,17 +38,32 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableView->setColumnWidth(MR_COLUMNS::CL3_PRICE, 100);
     ui->tableView->setColumnWidth(MR_COLUMNS::CL4_SUM,   100);
 
-    req_list.setAuth(ui->lineEditUser->text(), ui->lineEditPassword->text(), m_FakeDeviceID);
-    req_list.setModels(model_recepeits, &(m_ScanDialog.m_Model));
-//    req_list.setAutoFilter(filter);
+    delegate_lineedit = new LineEditDelegate(ui->tableView, categories->getList());
+    ui->tableView->setItemDelegateForColumn(MR_COLUMNS::CL5_CATEGORY, delegate_lineedit);
 
-    progress = new DialogProgress(this);
-    connect(&req_list, SIGNAL(req_total(int)), progress, SLOT(setTotal(int)));
-    connect(&req_list, SIGNAL(req_reconized(bool)), progress, SLOT(reconized(bool)));
-    connect(&req_list, SIGNAL(req_finished()), this, SLOT(updateCategoriesInTable()));
+    wn_progress = new DialogProgress(this);
+    connect(wn_progress, SIGNAL(retry_reconize()), this, SLOT(retry_reconize()));
 
-//    loadItems();
-//    loadCategories();
+    req_manager.setAuth(ui->lineEditUser->text(), ui->lineEditPassword->text(), m_FakeDeviceID);
+    req_manager.setModels(model_recepeits, &(m_ScanDialog.m_Model));
+    connect(&req_manager, SIGNAL(req_total(int)), wn_progress, SLOT(setTotal(int)));
+    connect(&req_manager, SIGNAL(req_reconized(bool)), wn_progress, SLOT(reconized(bool)));
+    connect(&req_manager, SIGNAL(req_finished()), this, SLOT(updateCategoriesInTable()));
+
+    wn_filters = new DialogFilters(this);
+
+//    QImage image;
+//    image.load("./XXX.jpg");
+//    QFile qb("./img.data");
+//    qb.open(QIODevice::WriteOnly);
+//    qb.write((const char *) image.bits(), qint64(image.bytesPerLine()) * image.height());
+//    qb.close();
+}
+
+void MainWindow::retry_reconize()
+{
+    m_ScanDialog.m_Model.clearErrors();
+    req_manager.run();
 }
 
 MainWindow::~MainWindow()
@@ -57,112 +75,15 @@ MainWindow::~MainWindow()
     m_Settings.setValue("User/isPacketImages", m_ScanDialog.isPacketImages());
     m_Settings.sync();
 
-    saveCategories();
 
-    delete filter;
+    delete wn_filter;
+    delete wn_progress;
+    delete wn_filters;
+    delete model_recepeits;
+
+    categories->save();
+
     delete ui;
-}
-
-void MainWindow::loadCategories()
-{
-    QFile textFile("categories.txt");
-    if (textFile.open(QIODevice::ReadOnly)){
-        QTextStream textStream(&textFile);
-        while (true)
-        {
-            QString line = textStream.readLine();
-            if (line.isNull())
-                break;
-            else
-                m_Categories.append(line);
-        }
-    }
-    m_Categories.sort();
-    m_Categories.insert(0,"");
-}
-
-void MainWindow::saveCategories()
-{
-    for (int i=0;i<m_Items.count(); i++) {
-        m_Categories.append(m_Items.at(i).category);
-    }
-    m_Categories.sort();
-    m_Categories.removeDuplicates();
-
-    QFile textFile("categories.txt");
-    if (textFile.open(QIODevice::WriteOnly)){
-        QTextStream out(&textFile);
-        foreach (auto cat, m_Categories) {
-            out << cat << "\n";
-        }
-    }
-    textFile.close();
-}
-
-void MainWindow::loadItems()
-{
-    QFile textFile("items.csv");
-    if (textFile.open(QIODevice::ReadOnly)){
-        m_SavedItems.clear();
-        QTextStream textStream(&textFile);
-        while (true)
-        {
-            QString line = textStream.readLine();
-            if (line.isNull())
-                break;
-            else{
-                QStringList row = line.split(";",QString::KeepEmptyParts);
-                if (row.count()!=5)
-                    break;
-                else{
-                    sSavedItem item;
-                    item.name = row[0];
-                    item.newName = row[1];
-                    item.category = row[2];
-                    item.countFactor = row[3].toFloat();
-                    item.countType = row[4];
-                    m_SavedItems.insert(item.name,item);
-                }
-            }
-        }
-    }
-}
-
-void MainWindow::saveItems()
-{
-    loadItems();//load actual items, update, and save.
-    for (int i = 0; i<m_Items.count(); ++i){
-        auto itemIt = m_SavedItems.find(m_Items[i].name);
-        if (itemIt==m_SavedItems.end()){
-            sSavedItem item;
-            item.category = m_Items[i].category;
-            item.countFactor = m_Items[i].countFactor;
-            item.countType = m_Items[i].countType;
-            item.newName = m_Items[i].newname;
-            item.name = m_Items[i].name;
-            m_SavedItems.insert(item.name,item);
-        }
-        else{
-            itemIt.value().category = m_Items[i].category;
-            itemIt.value().countFactor = m_Items[i].countFactor;
-            itemIt.value().countType = m_Items[i].countType;
-            itemIt.value().newName = m_Items[i].newname;
-        }
-    }
-
-    QFile textFile("items.csv");
-    if (textFile.open(QIODevice::WriteOnly)){
-        auto it = m_SavedItems.begin();
-        while (it!=m_SavedItems.end()){
-            QString line = it.value().name + ";"+
-                            it.value().newName + ";"+
-                            it.value().category + ";"+
-                            QString::number(it.value().countFactor) + ";"+
-                            it.value().countType+"\n";
-            textFile.write(line.toUtf8());
-            ++it;
-        }
-    };
 }
 
 void MainWindow::on_btClearTable_clicked()
@@ -174,15 +95,18 @@ void MainWindow::on_btClearTable_clicked()
 //TODO: экспорт для программы AbilityCash в формате xml
 void MainWindow::on_btAbilityCashExport_clicked()
 {
+    QDateTime now = QDateTime::currentDateTime();
+    QString ts = now.toString("yyyy-MM-dd_HH_mm");
+    QString filename = QString("./%1_%2.xml").arg("ability_cash").arg(ts);
     AbilityCashExport e(&model_recepeits->vector);
-    e.export_xml("./ability_cash.xml");
-    QMessageBox::information(0,tr("Экспорт завершен"),tr("Экспорт в формат AbilityCach завершен!"));
+    e.export_xml(filename);
+    QMessageBox::information(0,tr("Экспорт завершен"),tr("Экспорт в формат AbilityCach завершен! \nЗаписан файл %1").arg(filename));
 }
 
 void MainWindow::on_btRequest_clicked()
 {
     if (m_ScanDialog.exec()){
-        req_list.run();
+        req_manager.run();
     }
 }
 
@@ -193,8 +117,8 @@ void MainWindow::on_btFilter_clicked()
     if (index < 0)
         return;
 
-    if (filter->showDialog(model_recepeits->vector.at(index).name)) {
-        model_recepeits->vector[index].category = filter->getCategory();
+    if (wn_filter->showDialog(model_recepeits->vector.at(index).name)) {
+        model_recepeits->vector[index].category = wn_filter->getCategory();
         model_recepeits->vector[index].filter = true;
         model_recepeits->forceUpdate();
         updateCategoriesInTable();
@@ -205,10 +129,45 @@ void MainWindow::updateCategoriesInTable()
 {
     for (int i=0;i<model_recepeits->vector.count(); i++) {
         if (model_recepeits->vector[i].category.isEmpty()) {
-            S_FILTER f = filter->findFilter(model_recepeits->vector.at(i).name);
+            S_FILTER f = wn_filter->findFilter(model_recepeits->vector.at(i).name);
             model_recepeits->vector[i].category = f.category;
             model_recepeits->vector[i].filter   = f.valid;
+            categories->addCategory(f.category);
         }
     }
     model_recepeits->forceUpdate();
 }
+
+void MainWindow::on_btShowFilters_clicked()
+{
+    wn_filters->loadFilters(wn_filter);
+    wn_filters->exec();
+}
+
+void MainWindow::on_btShowCategories_clicked()
+{
+
+}
+
+void MainWindow::on_lineEditUser_textChanged(const QString &arg1)
+{
+    QPalette palette;
+    palette.setColor(QPalette::Text,Qt::black);
+    palette.setColor(QPalette::Base,Qt::white);
+    if (arg1.length()!=12) {
+        palette.setColor(QPalette::Base,Qt::red);
+    }
+    ui->lineEditUser->setPalette(palette);
+}
+
+void MainWindow::on_lineEditPassword_textChanged(const QString &arg1)
+{
+    QPalette palette;
+    palette.setColor(QPalette::Text,Qt::black);
+    palette.setColor(QPalette::Base,Qt::white);
+    if (arg1.length()==0) {
+        palette.setColor(QPalette::Base,Qt::red);
+    }
+    ui->lineEditPassword->setPalette(palette);
+}
+

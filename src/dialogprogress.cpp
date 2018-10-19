@@ -44,14 +44,17 @@ void DialogProgress::updateProgress()
     ui->lbFail->setText(QString("С ошибками: %1").arg(fail));
     if (ui->pbProgress->value()==total && fail == 0) {
         ui->btOK->setEnabled(false);
+        ui->btRetry->setEnabled(false);
         ui->btAbort->setEnabled(false);
     }
     if (ui->pbProgress->value()!=total && fail > 0) {
         ui->btOK->setEnabled(false);
+        ui->btRetry->setEnabled(false);
         ui->btAbort->setEnabled(true);
     }
     if (ui->pbProgress->value()==total && fail > 0) {
         ui->btOK->setEnabled(true);
+        ui->btRetry->setEnabled(true);
         ui->btAbort->setEnabled(false);
     }
 }
@@ -64,4 +67,9 @@ void DialogProgress::on_btAbort_clicked()
 void DialogProgress::on_btOK_clicked()
 {
     this->accept();
+}
+
+void DialogProgress::on_btRetry_clicked()
+{
+    emit retry_reconize();
 }

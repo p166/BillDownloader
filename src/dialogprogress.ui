@@ -16,10 +16,34 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
+     <item row="1" column="2">
+      <widget class="QLabel" name="lbSuccess">
+       <property name="text">
+        <string>Успешно: </string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="4">
       <widget class="QPushButton" name="btAbort">
        <property name="text">
         <string>Abort</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="6">
+      <widget class="QPushButton" name="btOK">
+       <property name="text">
+        <string>OK</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLabel" name="lbTotal">
+       <property name="text">
+        <string>Всего: </string>
        </property>
       </widget>
      </item>
@@ -36,17 +60,10 @@
        </property>
       </spacer>
      </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="lbTotal">
-       <property name="text">
-        <string>Всего: </string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="lbSuccess">
-       <property name="text">
-        <string>Успешно: </string>
+     <item row="0" column="0" colspan="7">
+      <widget class="QProgressBar" name="pbProgress">
+       <property name="value">
+        <number>0</number>
        </property>
       </widget>
      </item>
@@ -58,19 +75,9 @@
       </widget>
      </item>
      <item row="1" column="5">
-      <widget class="QPushButton" name="btOK">
+      <widget class="QPushButton" name="btRetry">
        <property name="text">
-        <string>OK</string>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="6">
-      <widget class="QProgressBar" name="pbProgress">
-       <property name="value">
-        <number>0</number>
+        <string>Retry</string>
        </property>
       </widget>
      </item>

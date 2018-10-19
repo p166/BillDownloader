@@ -84,7 +84,10 @@ bool ModelRecepeits::setData(const QModelIndex &index, const QVariant &value, in
     if (index.column() == CL1_NAME)     vector[index.row()].name      = value.toString();
     if (index.column() == CL2_COUNT)    vector[index.row()].count     = value.toDouble(&ok);
     if (index.column() == CL3_PRICE)    vector[index.row()].price     = value.toDouble(&ok);
-    if (index.column() == CL5_CATEGORY) vector[index.row()].category  = value.toString();
+    if (index.column() == CL5_CATEGORY) {
+        vector[index.row()].category  = value.toString();
+        CategoriesSingleton::getInstance()->addCategory(value.toString());
+    }
 
     if (vector[index.row()].date.isNull()) {
 
@@ -133,6 +136,8 @@ void ModelRecepeits::addRecepiet(mItem item)
     } else {
         item.sum = item.count*item.price;
     }
+    qDebug() << "adding" << item.name << item.date.toString("yyyy-MM-ddTHH:mm:ss");
+
     vector.append(item);
 }
 

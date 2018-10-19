@@ -24,6 +24,7 @@ bool AbilityCashExport::export_xml(const QString filename)
     ac_accounts.write(&xml);
     ac_classifiers.write(&xml, items);
     ac_transactions.write(&xml, items);
+    ac_reconized_bills.write(&xml, items);
 
     xml.writeEndElement();
     xml.writeEndDocument();

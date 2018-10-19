@@ -1,23 +1,29 @@
-#ifndef MODELRECEIPTS_H
-#define MODELRECEIPTS_H
+#ifndef ModelFilters_H
+#define ModelFilters_H
 
 #include <QAbstractItemModel>
 #include <QAbstractTableModel>
 #include <QColor>
+#include <QStringList>
 #include <QDebug>
 
-#include "categoriessingleton.h"
 #include "utils.h"
+#include "autofilter.h"
+#include "categoriessingleton.h"
 
 
-enum MR_COLUMNS {CL0_DATE, CL1_NAME, CL2_COUNT, CL3_PRICE, CL4_SUM, CL5_CATEGORY};
+namespace model_filters {
 
-class ModelRecepeits : public QAbstractTableModel
+}
+
+using namespace model_filters;
+
+class ModelFilters : public QAbstractTableModel
 {
     Q_OBJECT
 
 public:
-    ModelRecepeits(QObject *parent = 0);
+    ModelFilters(QObject *parent = 0);
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
@@ -27,16 +33,14 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
 public:
-    QVector <mItem> vector;
+    QVector <S_FILTER> vector;
 
 private:
 
 public slots:
     void forceUpdate();
-    void addRecepiet(mItem item);
-
-signals:
+    QStringList getFiltersList();
 
 };
 
-#endif
+#endif // ModelFilters_H

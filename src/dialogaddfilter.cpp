@@ -6,10 +6,13 @@ DialogAddFilter::DialogAddFilter(QWidget *parent) :
     ui(new Ui::DialogAddFilter)
 {
     ui->setupUi(this);
+    temp_delegate = new LineEditDelegate(this, CategoriesSingleton::getInstance()->getList());
+    ui->edCategory->setCompleter(temp_delegate->getCompleater());
 }
 
 DialogAddFilter::~DialogAddFilter()
 {
+    delete temp_delegate;
     delete ui;
 }
 

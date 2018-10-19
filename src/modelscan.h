@@ -32,10 +32,11 @@ public:
 private:
 
 public slots:
-    void addData(const QString FN, const QString FD, const QString FPD);
+    void addData(const QString FN, const QString FD, const QString FPD, QImage img=QImage(), RECONIZE_RESULT result=NO_RECONIZE);
     void reconized(const int index, const RECONIZE_RESULT result);
     void forceUpdate();
     void clearErrors();
+    void findFPD(mItem &item);
 
 signals:
     void added();

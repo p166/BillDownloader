@@ -21,13 +21,12 @@
 #include "utils.h"
 #include "modelscan.h"
 #include "modelreceipts.h"
-#include "autofilter.h"
 
-class RequestList : public QObject
+class RequestManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit RequestList(QObject *parent = nullptr);
+    explicit RequestManager(QObject *parent = nullptr);
 
 
 signals:
@@ -39,7 +38,6 @@ public slots:
     void run();
     void setAuth(const QString user, const QString pass, const QString m_FakeDeviceID);
     void setModels(ModelRecepeits *model_recepeits, ModelScan *model_scan);
-//    void setAutoFilter(AutoFilter *filter){}
 
 private slots:
     bool beginRequest();
@@ -58,7 +56,6 @@ private:
     QString m_FakeDeviceID;
     ModelRecepeits *model_recepeits;
     ModelScan *model_scan;
-    AutoFilter *filter;
     QTimer  timer;
 
 

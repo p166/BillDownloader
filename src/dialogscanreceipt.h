@@ -8,6 +8,14 @@
 #include <QCameraViewfinder>
 #include <QZXing.h>
 #include <QMessageBox>
+#include <QPainter>
+#include <QGraphicsEffect>
+#include <QGraphicsBlurEffect>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
+#include <QTransform>
+#include <QFileDialog>
+#include <QSettings>
 
 #include "modelscan.h"
 
@@ -41,6 +49,8 @@ public:
     bool isPacketImages();
     void setIsPacketImages(bool value);
 
+public slots:
+
 private slots:
     void on_comboBox_currentIndexChanged(int index);
     void on_imageAvailable(int, const QVideoFrame &buffer);
@@ -50,9 +60,22 @@ private slots:
     void on_btClear_clicked();
     void on_btClose_clicked();
     void on_btClearErrors_clicked();
+    void on_slBlurRadius_valueChanged(int value);
+    void on_btOpen_clicked();
+
+    QImage applyEffectToImage(QImage &src, QGraphicsEffect *effect, int extent = 0);
+    QImage brightnessImage(const QImage &src, int n);
+    void decodeImage(const QImage &source, const bool fromCamera=false);
+    bool refineImage(const QImage &source, QImage &out);
+
+    void on_tableView_clicked(const QModelIndex &index);
+
+    void on_btStopCamera_clicked();
 
 private:
     Ui::DialogScanReceipt *ui;
+
+    bool camera_stop;
 
 signals:
     void imageDecoded();

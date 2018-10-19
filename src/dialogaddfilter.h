@@ -3,6 +3,9 @@
 
 #include <QDialog>
 
+#include "categoriessingleton.h"
+#include "delegate_lineedit.h"
+
 namespace Ui {
 class DialogAddFilter;
 }
@@ -34,6 +37,7 @@ public slots:
 
 private:
     Ui::DialogAddFilter *ui;
+    LineEditDelegate *temp_delegate;
 };
 
 #endif // DIALOGADDFILTER_H

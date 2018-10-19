@@ -13,6 +13,13 @@ include(../QZXing/QZXing.pri)
 TARGET = BillDownloader
 TEMPLATE = app
 
+#отделение временных файлов во время сборки
+MOC_DIR     = tmp
+OBJECTS_DIR = tmp
+UI_DIR      = tmp
+INCLUDEPATH += ./tmp/
+
+
 #dependency
 # qtdeclarative5-dev libqt5quick5 libqt5quick-dev qtmultimedia5-dev libqt5multimediawidgets5 libqt5multimedia5-plugins libqt5multimedia5
 
@@ -44,8 +51,14 @@ SOURCES += main.cpp\
     dialogaddfilter.cpp \
     autofilter.cpp \
     modelreceipts.cpp \
-    requestlist.cpp \
-    dialogprogress.cpp
+    dialogprogress.cpp \
+    modelfilters.cpp \
+    dialogfilters.cpp \
+    requestmanager.cpp \
+    categoriessingleton.cpp \
+    delegate_lineedit.cpp \
+    delegate_combobox.cpp \
+    export/abilitycash/ac_reconized_bills.cpp
 
 HEADERS  += mainwindow.h \
     cwimage.h \
@@ -62,14 +75,21 @@ HEADERS  += mainwindow.h \
     dialogaddfilter.h \
     autofilter.h \
     modelreceipts.h \
-    requestlist.h \
-    dialogprogress.h
+    dialogprogress.h \
+    modelfilters.h \
+    dialogfilters.h \
+    requestmanager.h \
+    categoriessingleton.h \
+    delegate_lineedit.h \
+    delegate_combobox.h \
+    export/abilitycash/ac_reconized_bills.h
 
 FORMS    += mainwindow.ui \
     dialogscanreceipt.ui \
     dialogcopytext.ui \
     dialogaddfilter.ui \
-    dialogprogress.ui
+    dialogprogress.ui \
+    dialogfilters.ui
 
 DISTFILES += \
     categories.txt \
